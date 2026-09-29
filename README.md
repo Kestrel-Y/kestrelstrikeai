@@ -8,20 +8,6 @@
 
 ---
 
-## 上游前身与基石
-
-本产品衍生自开源项目 **[CyberStrikeAI](https://github.com/Ed1s0nZ/CyberStrikeAI)**（Apache License 2.0）。上游奠定了：
-
-- **Go + Gin** Web / API 骨架
-- **Eino 多代理**编排
-- **MCP 联邦**（内置 / YAML / 外部 MCP）
-- **多层作战记忆**与证据回溯
-- **AI 围栏 · HITL** 高风险动作人工确认
-
-详见 [系统架构与上游基石](https://kestrel-y.github.io/kestrelstrikeai/docs/architecture.html)。上游荣誉与社区归属上游项目，不代表本分支。
-
----
-
 ## 开源边界
 
 本仓库**只公开**：
@@ -194,3 +180,17 @@ cp config.example.yaml config.yaml
 
 联系：kestrel-c2@outlook.com  
 安全漏洞请按 [SECURITY.md](SECURITY.md) 私下报告（主题标注 `[SECURITY]`）。
+
+---
+
+## 上游前身与基石
+
+本产品衍生自开源项目 **[CyberStrikeAI](https://github.com/Ed1s0nZ/CyberStrikeAI)**（Apache License 2.0）。上游奠定了：
+
+- **Go + Gin** Web / API 骨架
+- **Eino 多代理**编排
+- **MCP 联邦**（内置 / YAML / 外部 MCP）
+- **多层作战记忆**与证据回溯
+- **AI 围栏 · HITL** 高风险动作人工确认
+
+详见 [系统架构与上游基石](https://kestrel-y.github.io/kestrelstrikeai/docs/architecture.html)。上游荣誉与社区归属上游项目，不代表本分支。
