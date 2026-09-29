@@ -40,12 +40,25 @@
 
 ### 1. 下载与自检
 
-```bash
-# 预览包：Releases 页下载最新 preview-* 附件
-# https://github.com/Kestrel-Y/kestrelstrikeai/releases
+> **务必按操作系统选包。** `darwin-*` 只能在 **macOS** 跑；`linux-*` 才能在 **Ubuntu / Kali / 其他 Linux** 跑。  
+> 在 Linux 上执行 `darwin` 包会出现：`cannot execute binary file: Exec format error`。
 
-tar xzf kestrelstrikeai-preview-*.tar.gz
-cd kestrelstrikeai-*/
+| 你的系统 | 下载文件名包含 |
+|---|---|
+| Ubuntu / Kali / 其他 Linux（x86_64） | `linux-amd64`（`.zip` 或 `.tar.gz`） |
+| Linux ARM64 | `linux-arm64` |
+| macOS Intel | `darwin-amd64` |
+| macOS Apple Silicon | `darwin-arm64`（或用 Rosetta 跑 amd64） |
+
+```bash
+# Releases：https://github.com/Kestrel-Y/kestrelstrikeai/releases
+# Linux 示例（不要下 darwin 包）：
+#   kestrelstrikeai-preview-linux-amd64.zip
+
+unzip kestrelstrikeai-preview-linux-amd64.zip
+# 或：tar xzf kestrelstrikeai-preview-linux-amd64.tar.gz
+cd kestrelstrikeai-preview-linux-amd64/
+file ./kestrelstrike-ai    # 应显示 ELF 64-bit LSB executable, x86-64
 ./kestrelstrike-ai --build-info
 ```
 
