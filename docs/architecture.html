@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <base href="/kestrelstrikeai/">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统架构 · KestrelStrikeAI</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="static/favicon-32.png">
+    <link rel="stylesheet" href="static/css/home.css">
+    <link rel="stylesheet" href="static/css/community-extra.css">
+    <script>
+        (function () {
+            var root = document.documentElement;
+            var stored = 'system';
+            try { stored = localStorage.getItem('kestrelstrike-theme') || 'system'; } catch (e) {}
+            if (stored !== 'light' && stored !== 'dark') stored = 'system';
+            var prefersDark = false;
+            try { prefersDark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) {}
+            var resolved = (stored === 'dark' || (stored === 'system' && prefersDark)) ? 'dark' : 'light';
+            root.setAttribute('data-theme', resolved);
+            root.style.colorScheme = resolved;
+        })();
+    </script>
+</head>
+<body class="ks-body">
+<main class="ks-docs-shell">
+    <p class="ks-eyebrow"><a href="index.html">← 返回首页</a> · <a href="docs/deployment.html">部署手册</a> · <a href="docs/disclaimer.html">开源免责</a></p>
+    <h1>系统架构与上游基石</h1>
+    <p>KestrelStrikeAI 是以 Web 管理面为入口、以 Agent 与 MCP 工具为执行核心的安全测试编排平台。社区仓<strong>不开源核心代码</strong>；本节说明能力分层与开源前身关系，便于评估部署与试用。</p>
+
+    <h2>上游前身与基石（致谢）</h2>
+    <p>本产品衍生自开源项目 <a href="https://github.com/Ed1s0nZ/CyberStrikeAI" target="_blank" rel="noopener">CyberStrikeAI（Ed1s0nZ/CyberStrikeAI）</a>（Apache License 2.0）。上游奠定了当前平台的工程与产品骨架，特此致谢：</p>
+    <ul>
+        <li><strong>Go + Gin</strong>：服务端与 Web API 路由骨架</li>
+        <li><strong>Eino 多代理</strong>：单代理 / Deep / Plan-Execute / Supervisor 等编排模式</li>
+        <li><strong>MCP 联邦</strong>：内置工具 + YAML 工具 + 外部 MCP 接入</li>
+        <li><strong>多层作战记忆</strong>：会话 / 项目事实 / 证据与审计等可回溯记忆分层（在上游记忆体系上延续演进）</li>
+        <li><strong>AI 围栏 · HITL</strong>：高风险动作闸门与人工确认</li>
+    </ul>
+    <p>KestrelStrikeAI 在此基石上完成产品化重命名、授权交付、C2/DSH 等能力扩展与二次开发。<strong>上游获得的荣誉与社区入口归属上游项目</strong>，不代表本衍生分支。开源合规说明见 <a href="docs/disclaimer.html">开源免责协议</a>。</p>
+
+    <h2>总览</h2>
+    <pre><code>Web / Robot / API 用户
+        │
+        ▼
+   Gin Router ──► Handlers ──► SQLite / 审计 / 监控
+                    │
+                    ├─► Agent / Multi-Agent（Eino）
+                    │         │
+                    │         ├─► MCP Server（内置 · YAML · Skills）
+                    │         ├─► External MCP
+                    │         └─► 知识库检索 / Tool Guard / HITL
+                    │
+                    ├─► Workflow 工作流
+                    ├─► 内置 C2 / WebShell（企业能力，受授权与闸门约束）
+                    └─► 项目 · 资产 · 漏洞 · 攻击链</code></pre>
+
+    <h2>分层说明</h2>
+    <h3>Web 层</h3>
+    <p>Gin 承载控制台、落地页、激活页与 API。静态资源与模板随发行包分发。</p>
+    <h3>Agent 层</h3>
+    <p>Eino ADK 驱动推理与工具调用；多代理由角色 / Skills / 黑板事实协同。自然语言意图经 Reason→Explore→Fact→Reflect 闭环落地为受控动作。</p>
+    <h3>MCP 与工具</h3>
+    <p>内置 Go 工具、YAML 命令配方、Skills 文件系统与外部 MCP 联邦。工具输出结构化写入资产 / 候选发现 / 证据，供攻击链与报告引用。</p>
+    <h3>记忆与证据</h3>
+    <p>作战记忆分层保存会话轨迹、项目事实、证据条目与审计日志，支撑回放与复核——结论须能回溯到原始工具输出。</p>
+    <h3>治理闸门（AI 围栏）</h3>
+    <p>策略拦截、风险分级与 HITL 审批把高危动作关进人工确认；授权版本（试用 / 正式 / 企业）决定功能位边界。</p>
+
+    <h2>部署形态与架构对应</h2>
+    <table class="ks-docs-table">
+        <thead><tr><th>形态</th><th>典型 OS / Arch</th><th>说明</th></tr></thead>
+        <tbody>
+            <tr><td>本机二进制</td><td>Linux amd64 / arm64 · Kali</td><td>完整工具链；systemd 托管</td></tr>
+            <tr><td>容器</td><td>Linux amd64 / arm64</td><td>干净服务器；工具需外挂或扩展镜像</td></tr>
+            <tr><td>桌面预览</td><td>macOS amd64 / arm64</td><td>社区预览包；本地体验</td></tr>
+        </tbody>
+    </table>
+    <p>详细步骤见 <a href="docs/deployment.html">部署手册</a>。</p>
+
+    <h2>开源边界（再强调）</h2>
+    <p>公开仓库 <a href="https://github.com/Kestrel-Y/kestrelstrikeai" target="_blank" rel="noopener">https://github.com/Kestrel-Y/kestrelstrikeai</a> 仅含社区站、Issue 申请渠道与<strong>预览编译包</strong>。核心实现、签发私钥、部分专有模块<strong>不开源</strong>。上游 CyberStrikeAI 仍可按其 Apache-2.0 条款独立获取与使用。</p>
+
+    <p class="ks-apply__note">文档版本 preview</p>
+</main>
+</body>
+</html>

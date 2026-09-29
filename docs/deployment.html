@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <base href="/kestrelstrikeai/">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>部署手册 · KestrelStrikeAI</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="static/favicon-32.png">
+    <link rel="stylesheet" href="static/css/home.css">
+    <link rel="stylesheet" href="static/css/community-extra.css">
+    <script>
+        (function () {
+            var root = document.documentElement;
+            var stored = 'system';
+            try { stored = localStorage.getItem('kestrelstrike-theme') || 'system'; } catch (e) {}
+            if (stored !== 'light' && stored !== 'dark') stored = 'system';
+            var prefersDark = false;
+            try { prefersDark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) {}
+            var resolved = (stored === 'dark' || (stored === 'system' && prefersDark)) ? 'dark' : 'light';
+            root.setAttribute('data-theme', resolved);
+            root.style.colorScheme = resolved;
+        })();
+    </script>
+</head>
+<body class="ks-body">
+<main class="ks-docs-shell">
+    <p class="ks-eyebrow"><a href="index.html">← 返回首页</a> · <a href="docs/architecture.html">架构</a> · <a href="docs/disclaimer.html">开源免责</a></p>
+    <h1>部署手册</h1>
+    <p>面向<strong>获准试用 / 正式交付</strong>后的落地：拿到发行包或预览包之后，如何在不同系统与架构上安装、激活、升级。核心源码不开源；公开仓仅提供文档与编译产物。</p>
+
+    <h2>0. 先选部署路径</h2>
+    <table class="ks-docs-table">
+        <thead><tr><th>场景</th><th>推荐路径</th><th>架构</th></tr></thead>
+        <tbody>
+            <tr><td>Kali / 红队本机（要本机渗透工具链）</td><td>解压二进制 + systemd</td><td>linux/amd64（为主）</td></tr>
+            <tr><td>干净 Linux 服务器（只要 Web 平台）</td><td>Docker Compose</td><td>linux/amd64 · linux/arm64</td></tr>
+            <tr><td>macOS 本地体验 / 预览</td><td>预览包直接跑二进制</td><td>darwin/amd64 · darwin/arm64</td></tr>
+            <tr><td>内网隔离、无外网</td><td>离线发行包 + 离线激活</td><td>同 Linux 二进制</td></tr>
+            <tr><td>私有镜像仓库</td><td><code>docker pull</code> + compose pull 模式</td><td>按仓库标签</td></tr>
+        </tbody>
+    </table>
+    <p class="ks-apply__note">容器镜像<strong>刻意不含</strong> nmap/sqlmap/nuclei 等工具。要让 Agent 真正调工具，请用 Kali 本机二进制部署，或自行基于 Kali 扩展镜像。</p>
+
+    <h2>1. 拿到包先自检（30 秒）</h2>
+    <pre><code>tar xzf kestrelstrikeai-preview-*.tar.gz   # 或正式发行包
+cd kestrelstrikeai-*/
+./kestrelstrike-ai --build-info</code></pre>
+    <p>核对：版本号、通道（<code>dev</code>/<code>production</code>/<code>release</code>）、是否编入授权公钥。正式交付应为 <code>release</code> 通道。</p>
+
+    <h2>2. Kali / Linux 本机（二进制）</h2>
+    <h3>2.1 依赖</h3>
+    <pre><code>sudo apt-get update &amp;&amp; sudo apt-get install -y ca-certificates tzdata curl
+# 渗透工具：nmap httpx nuclei sqlmap ffuf … 按需 apt install
+</code></pre>
+    <h3>2.2 解压与启动</h3>
+    <pre><code>sudo mkdir -p /opt/kestrelstrike
+sudo tar xzf kestrelstrike-*-linux-amd64.tar.gz -C /opt/kestrelstrike --strip-components=1
+cd /opt/kestrelstrike
+cp config.example.yaml config.yaml   # 按需改端口、模型、授权
+./kestrelstrike-ai --config config.yaml
+# 浏览器打开提示地址；首次到 /activate 激活
+</code></pre>
+    <h3>2.3 systemd（长期运行）</h3>
+    <pre><code># 典型 unit：WorkingDirectory=/opt/kestrelstrike
+# ExecStart=/opt/kestrelstrike/kestrelstrike-ai --config config.yaml
+# 具体 unit 随正式发行包内 docs / install.sh 提供
+sudo systemctl enable --now kestrelstrike
+</code></pre>
+    <p>amd64 为默认交付；arm64（如部分云主机 / 树莓派类）需对应 <code>linux-arm64</code> 包。</p>
+
+    <h2>3. Docker / Compose（Linux 服务器）</h2>
+    <pre><code># 获准后拿到的发行包内通常含 Dockerfile / docker-compose.yml
+docker compose up -d --build
+# 或拉取私有仓库镜像：
+# docker compose -f docker-compose.pull.yml up -d
+</code></pre>
+    <ul>
+        <li>持久化卷：<code>data/</code>（库、会话、证书）、自定义 skills/roles（如有）</li>
+        <li>端口：默认参考包内 compose（常见 18080）</li>
+        <li>生产务必 TLS 或反向代理；改默认管理员密码</li>
+    </ul>
+
+    <h2>4. macOS 预览</h2>
+    <pre><code>tar xzf kestrelstrikeai-preview-darwin-*.tar.gz
+cd kestrelstrikeai-preview-darwin-*/
+cp config.example.yaml config.yaml
+./kestrelstrike-ai
+</code></pre>
+    <p>社区公开预览包当前常见为 <strong>darwin/amd64</strong>（Apple Silicon 可用 Rosetta 或等待 arm64 预览包）。仅用于授权范围内的本地体验，不作为生产交付。</p>
+
+    <h2>5. 激活（试用版 / 正式版 / 企业版）</h2>
+    <ol>
+        <li>打开产品 <code>/activate</code></li>
+        <li>无激活码：先走社区 <a href="index.html#ks-apply">申请试用版激活</a></li>
+        <li>有激活码且能出网：在线激活</li>
+        <li>内网隔离：导出激活请求 → 厂商签发 → 导入证书</li>
+    </ol>
+    <p>版本说明：试用版与正式版能力相同（不含企业专属 C2 / 外部 MCP / Skills 配置 / 知识库配置）；企业版默认全开。</p>
+
+    <h2>6. 升级与备份</h2>
+    <ul>
+        <li>备份：<code>config.yaml</code>、<code>data/</code>、自定义资源目录</li>
+        <li>升级：正式客户使用厂商升级包 / 控制台在线更新；预览包请整包替换后保留 <code>data/</code></li>
+    </ul>
+
+    <h2>7. 文档导航</h2>
+    <ul>
+        <li><a href="docs/quickstart.html">快速开始</a></li>
+        <li><a href="docs/architecture.html">系统架构与上游基石</a></li>
+        <li><a href="docs/security.html">安全声明</a></li>
+        <li><a href="docs/disclaimer.html">开源免责协议</a></li>
+        <li><a href="https://github.com/Kestrel-Y/kestrelstrikeai/releases" target="_blank" rel="noopener">下载预览包</a></li>
+    </ul>
+    <p class="ks-apply__note">文档版本 preview · 站点 https://kestrel-y.github.io/kestrelstrikeai</p>
+</main>
+</body>
+</html>

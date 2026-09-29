@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <base href="/kestrelstrikeai/">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开源免责协议 · KestrelStrikeAI</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="static/favicon-32.png">
+    <link rel="stylesheet" href="static/css/home.css">
+    <link rel="stylesheet" href="static/css/community-extra.css">
+    <script>
+        (function () {
+            var root = document.documentElement;
+            var stored = 'system';
+            try { stored = localStorage.getItem('kestrelstrike-theme') || 'system'; } catch (e) {}
+            if (stored !== 'light' && stored !== 'dark') stored = 'system';
+            var prefersDark = false;
+            try { prefersDark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) {}
+            var resolved = (stored === 'dark' || (stored === 'system' && prefersDark)) ? 'dark' : 'light';
+            root.setAttribute('data-theme', resolved);
+            root.style.colorScheme = resolved;
+        })();
+    </script>
+</head>
+<body class="ks-body">
+<main class="ks-docs-shell">
+    <p class="ks-eyebrow"><a href="index.html">← 返回首页</a> · <a href="docs/architecture.html">架构</a> · <a href="docs/security.html">安全声明</a></p>
+    <h1>开源免责协议与许可说明</h1>
+    <p>本文约定社区公开材料、上游开源基石与产品化编译交付之间的关系。继续使用本仓库、站点、预览包或提交试用申请，即视为已阅读并接受下列条款。</p>
+
+    <h2>1. 双层许可结构</h2>
+    <table class="ks-docs-table">
+        <thead><tr><th>层</th><th>内容</th><th>许可 / 授权</th></tr></thead>
+        <tbody>
+            <tr>
+                <td>上游开源基石</td>
+                <td><a href="https://github.com/Ed1s0nZ/CyberStrikeAI" target="_blank" rel="noopener">CyberStrikeAI</a>（Go + Gin、Eino 多代理、MCP、记忆与 HITL 等）</td>
+                <td><strong>Apache License 2.0</strong>；版权与 NOTICE 归属上游及贡献者</td>
+            </tr>
+            <tr>
+                <td>本社区仓库公开材料</td>
+                <td>文档站 HTML/CSS/JS、Issue 模板、README、本免责页等</td>
+                <td>文档与站点展示材料以「署名 + 非商业复用说明」提供；修改后请保留上游致谢与本页链接。商标与品牌标识（KestrelStrike / Logo）保留所有权</td>
+            </tr>
+            <tr>
+                <td>预览 / 正式编译产物</td>
+                <td>二进制、发行包、试用证书、企业功能模块</td>
+                <td><strong>不开源</strong>。仅授予获准用户在书面授权目标上的有限使用权；禁止再分发、逆向用于绕过授权、商用转售</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>2. 上游致谢（必须保留）</h2>
+    <p>KestrelStrikeAI 是 CyberStrikeAI 的衍生与产品化发展。凡对外分发本社区文档或提及产品渊源时，应保留类似致谢：</p>
+    <blockquote>
+        本产品衍生自 <a href="https://github.com/Ed1s0nZ/CyberStrikeAI" target="_blank" rel="noopener">CyberStrikeAI</a>（Apache-2.0）。上游奠定 Go + Gin、Eino 多代理、MCP 联邦、作战记忆与 AI 围栏（HITL）等基石能力。
+    </blockquote>
+    <p>上游荣誉、星标、社区群等归属上游项目，不代表本分支。</p>
+
+    <h2>3. 授权用途（强制）</h2>
+    <p>无论开源文档、预览包还是正式版，均<strong>仅限</strong>已获目标系统权利人明确书面授权的安全测试、红队演练、漏洞验证、防御性研究与企业内部安全建设。</p>
+    <p><strong>禁止</strong>对未授权系统扫描、侵入、控制、破坏或窃取数据；禁止未经授权的商业再分发或二次开发后的商用。</p>
+
+    <h2>4. 合规与责任归属</h2>
+    <p>使用者应遵守适用法律法规（含《网络安全法》《数据安全法》《个人信息保护法》及相关刑法条款）。违法使用之后果由使用者自行承担，与作者、贡献者、上游项目及权利人无关。平台内置授权判定、HITL 与审计是辅助手段，不能替代你自身的授权文件与合规判断。</p>
+
+    <h2>5. 现状免责</h2>
+    <p>软件与文档按「现状」提供，不附带适销性、特定用途适用性等担保。AI 结论与自动化动作可能有误，必须由具备资质的人员复核后方可作为处置依据。</p>
+
+    <h2>6. 社区预览特别条款</h2>
+    <ul>
+        <li>预览包可能为 <code>dev</code>/<code>preview</code> 通道，功能与稳定性不保证与正式 <code>release</code> 一致</li>
+        <li>试用版激活码 / 证书由人工审核发放，可随时停用或吊销</li>
+        <li>不得将预览包包装为「已获完整开源」或去除本页与上游致谢后二次发布</li>
+    </ul>
+
+    <h2>7. 同意效力</h2>
+    <p>浏览本站点、克隆本仓库、下载 Release、提交 Issue 申请或导入证书，即构成对本协议的接受。若不同意，请立即停止使用并删除相关副本。</p>
+
+    <h2>8. 联系</h2>
+    <p>商务 / 试用：<a href="mailto:kestrel-c2@outlook.com">kestrel-c2@outlook.com</a><br>
+    安全漏洞：请按 <a href="https://github.com/Kestrel-Y/kestrelstrikeai/blob/main/SECURITY.md" target="_blank" rel="noopener">SECURITY.md</a> 私下报告（主题标注 <code>[SECURITY]</code>）</p>
+
+    <p><a href="docs/security.html">安全声明（简版）</a> · <a href="index.html#ks-apply">申请试用版激活</a></p>
+    <p class="ks-apply__note">协议版本 preview · 站点 https://kestrel-y.github.io/kestrelstrikeai</p>
+</main>
+</body>
+</html>
