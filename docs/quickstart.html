@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <base href="/kestrelstrikeai/">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快速开始 · KestrelStrikeAI</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="static/favicon-32.png">
+    <link rel="stylesheet" href="static/css/home.css">
+    <link rel="stylesheet" href="static/css/community-extra.css">
+    <script>
+        (function () {
+            var root = document.documentElement;
+            var stored = 'system';
+            try { stored = localStorage.getItem('kestrelstrike-theme') || 'system'; } catch (e) {}
+            if (stored !== 'light' && stored !== 'dark') stored = 'system';
+            var prefersDark = false;
+            try { prefersDark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) {}
+            var resolved = (stored === 'dark' || (stored === 'system' && prefersDark)) ? 'dark' : 'light';
+            root.setAttribute('data-theme', resolved);
+            root.style.colorScheme = resolved;
+        })();
+    </script>
+</head>
+<body class="ks-body">
+<main class="ks-docs-shell">
+    <p class="ks-eyebrow"><a href="index.html">← 返回首页</a></p>
+    <h1>快速开始（社区预览）</h1>
+    <p>当前公开内容为<strong>预览编译包 + 社区文档</strong>。核心源码不开源；完整部署与试用证书需通过<a href="index.html#ks-apply">申请试用</a>审核后发放。</p>
+
+    <h2>1. 下载预览包</h2>
+    <p>前往 <a href="https://github.com/Kestrel-Y/kestrelstrikeai/releases" target="_blank" rel="noopener">GitHub Releases</a> 下载最新 <code>preview-*</code> 附件（无源码）。</p>
+
+    <h2>2. 提交试用版激活申请</h2>
+    <p>在首页填写角色与期望版本（默认试用版），或直接打开对应 Issue 模板。企业申请请填写公司全称与对接信息。获准后收到激活码/证书，到产品 <code>/activate</code> 完成激活。</p>
+
+    <h2>3. 部署（获准后）</h2>
+    <p>获准后你会收到部署包与试用证书指引。典型路径：</p>
+    <ul>
+        <li><strong>Kali / 红队本机</strong>：解压发行包，直接跑二进制 + systemd</li>
+        <li><strong>干净 Linux 服务器</strong>：发行包内 <code>docker compose up -d</code></li>
+    </ul>
+    <p>激活前请阅读 <a href="docs/security.html">安全声明</a>，并确认目标系统已获书面授权。</p>
+
+    <h2>4. 联系</h2>
+    <p>邮箱 <a href="mailto:kestrel-c2@outlook.com">kestrel-c2@outlook.com</a> · 仓库 <a href="https://github.com/Kestrel-Y/kestrelstrikeai" target="_blank" rel="noopener">https://github.com/Kestrel-Y/kestrelstrikeai</a></p>
+    <p class="ks-apply__note">文档版本 preview · 站点 https://kestrel-y.github.io/kestrelstrikeai</p>
+</main>
+</body>
+</html>

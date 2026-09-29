@@ -1,0 +1,56 @@
+name: 个人红队试用申请
+description: 个人红队师傅申请部署试用
+title: "试用申请 · 个人红队 · "
+labels: ["trial", "redteam"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢申请。预览编译包可先从 Releases 下载；完整部署与试用证书需审核。
+        **仅限已获书面授权的红队演练。**
+  - type: dropdown
+    id: edition
+    attributes:
+      label: 期望授权版本
+      options:
+        - 试用版（默认）
+        - 正式版咨询
+        - 企业版咨询
+      default: 0
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: 姓名 / 代号
+    validations:
+      required: true
+  - type: input
+    id: org
+    attributes:
+      label: 所属团队 / 组织（可选）
+  - type: input
+    id: contact
+    attributes:
+      label: 联系方式
+      description: 邮箱 / 微信 / Telegram
+    validations:
+      required: true
+  - type: input
+    id: fingerprint
+    attributes:
+      label: 实例指纹 / 激活请求摘要（可选）
+  - type: textarea
+    id: purpose
+    attributes:
+      label: 用途说明
+      description: 授权范围、目标场景、部署环境
+    validations:
+      required: true
+  - type: checkboxes
+    id: authorize
+    attributes:
+      label: 授权承诺
+      options:
+        - label: 我确认仅在已获得目标系统权利人明确书面授权的场景使用，并同意站点免责声明与安全声明。
+          required: true

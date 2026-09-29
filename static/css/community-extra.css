@@ -1,0 +1,162 @@
+/* 社区站增量样式：申请试用表单（复用产品首页 token，不另起视觉体系） */
+
+.ks-apply {
+    max-width: 920px;
+    margin: 0 auto;
+}
+
+.ks-apply__form {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.ks-apply__fieldset {
+    border: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+    border-radius: 12px;
+    padding: 1rem 1.1rem 1.15rem;
+    margin: 0;
+}
+
+.ks-apply__legend {
+    padding: 0 0.4rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.72;
+}
+
+.ks-apply__roles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+}
+
+.ks-apply__role {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+    cursor: pointer;
+    font-size: 0.92rem;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.ks-apply__role:has(input:checked) {
+    border-color: color-mix(in srgb, #e8441a 70%, currentColor);
+    background: color-mix(in srgb, #e8441a 10%, transparent);
+}
+
+.ks-apply__role input {
+    accent-color: #e8441a;
+}
+
+.ks-apply__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.9rem 1rem;
+}
+
+.ks-apply__field {
+    display: grid;
+    gap: 0.35rem;
+    font-size: 0.88rem;
+}
+
+.ks-apply__field--wide {
+    grid-column: 1 / -1;
+}
+
+.ks-apply__field span {
+    opacity: 0.82;
+}
+
+.ks-apply__hint {
+    font-style: normal;
+    opacity: 0.55;
+    font-size: 0.8em;
+}
+
+.ks-apply__field input,
+.ks-apply__field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+    background: color-mix(in srgb, currentColor 4%, transparent);
+    color: inherit;
+    padding: 0.65rem 0.75rem;
+    font: inherit;
+}
+
+.ks-apply__field textarea {
+    resize: vertical;
+    min-height: 6.5rem;
+}
+
+.ks-apply__field input:focus,
+.ks-apply__field textarea:focus {
+    outline: 2px solid color-mix(in srgb, #e8441a 55%, transparent);
+    outline-offset: 1px;
+}
+
+.ks-apply__check {
+    display: flex;
+    gap: 0.65rem;
+    align-items: flex-start;
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+.ks-apply__check input {
+    margin-top: 0.2rem;
+    accent-color: #e8441a;
+}
+
+.ks-apply__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    align-items: center;
+}
+
+.ks-apply__note {
+    margin: 0;
+    font-size: 0.82rem;
+    opacity: 0.62;
+    line-height: 1.45;
+}
+
+@media (max-width: 720px) {
+    .ks-apply__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 文档子页外壳 */
+.ks-docs-shell {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 4rem;
+}
+
+.ks-docs-shell h1 {
+    font-size: clamp(1.6rem, 3vw, 2.1rem);
+    margin: 0 0 0.75rem;
+}
+
+.ks-docs-shell h2 {
+    font-size: 1.15rem;
+    margin: 1.75rem 0 0.55rem;
+}
+
+.ks-docs-shell p,
+.ks-docs-shell li {
+    line-height: 1.65;
+    opacity: 0.9;
+}
+
+.ks-docs-shell code {
+    font-size: 0.9em;
+}

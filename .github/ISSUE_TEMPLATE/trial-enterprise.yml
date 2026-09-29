@@ -1,0 +1,69 @@
+name: 企业安全团队试用申请
+description: 企业 / 安全团队申请部署试用与证书
+title: "试用申请 · 企业安全团队 · "
+labels: ["trial", "enterprise"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢申请 KestrelStrikeAI 试用。审核通过后我们会私下发放部署包与试用证书。
+        **仅限已获书面授权的安全测试与企业内部安全建设。**
+  - type: dropdown
+    id: edition
+    attributes:
+      label: 期望授权版本
+      description: 试用版能力与正式版相同（不含企业专属模块）；企业版需商务对接。
+      options:
+        - 试用版（默认）
+        - 正式版咨询
+        - 企业版咨询
+      default: 0
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: 对接人姓名 / 代号
+      placeholder: 怎么称呼你
+    validations:
+      required: true
+  - type: input
+    id: fingerprint
+    attributes:
+      label: 实例指纹 / 激活请求摘要（可选）
+      description: 已部署时可从产品 /activate 页导出后粘贴，便于签发绑定本机的试用证书
+  - type: input
+    id: company
+    attributes:
+      label: 公司全称
+      placeholder: 工商登记名称
+    validations:
+      required: true
+  - type: input
+    id: credit_or_contact
+    attributes:
+      label: 统一社会信用代码或业务对接人
+      description: 二选一即可，便于合规核验
+    validations:
+      required: true
+  - type: input
+    id: contact
+    attributes:
+      label: 联系方式
+      description: 邮箱 / 微信 / Telegram
+    validations:
+      required: true
+  - type: textarea
+    id: purpose
+    attributes:
+      label: 用途与部署环境
+      description: 授权范围、场景、预计部署环境（Kali / 内网服务器等）
+    validations:
+      required: true
+  - type: checkboxes
+    id: authorize
+    attributes:
+      label: 授权承诺
+      options:
+        - label: 我确认仅在已获得目标系统权利人明确书面授权的场景使用，并同意站点免责声明与安全声明。
+          required: true

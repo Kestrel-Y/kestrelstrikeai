@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 社区站点
+    url: https://kestrel-y.github.io/kestrelstrikeai/
+    about: 产品介绍、申请试用与文档
+  - name: 邮件申请
+    url: mailto:kestrel-c2@outlook.com?subject=KestrelStrikeAI%20试用申请
+    about: 无法使用 GitHub Issues 时的备用渠道

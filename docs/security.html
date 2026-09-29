@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <base href="/kestrelstrikeai/">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全声明 · KestrelStrikeAI</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="static/favicon-32.png">
+    <link rel="stylesheet" href="static/css/home.css">
+    <link rel="stylesheet" href="static/css/community-extra.css">
+    <script>
+        (function () {
+            var root = document.documentElement;
+            var stored = 'system';
+            try { stored = localStorage.getItem('kestrelstrike-theme') || 'system'; } catch (e) {}
+            if (stored !== 'light' && stored !== 'dark') stored = 'system';
+            var prefersDark = false;
+            try { prefersDark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) {}
+            var resolved = (stored === 'dark' || (stored === 'system' && prefersDark)) ? 'dark' : 'light';
+            root.setAttribute('data-theme', resolved);
+            root.style.colorScheme = resolved;
+        })();
+    </script>
+</head>
+<body class="ks-body">
+<main class="ks-docs-shell">
+    <p class="ks-eyebrow"><a href="index.html">← 返回首页</a></p>
+    <h1>安全声明</h1>
+    <p>KestrelStrikeAI 仅用于已获得目标系统权利人<strong>明确书面授权</strong>的安全测试、红队演练、漏洞验证、防御性研究与企业内部安全建设。</p>
+
+    <h2>禁止用途</h2>
+    <ul>
+        <li>对未授权系统实施扫描、侵入、控制、破坏、数据窃取或干扰</li>
+        <li>未经授权的商业使用、再分发或二次开发后的商用</li>
+    </ul>
+
+    <h2>合规义务</h2>
+    <p>使用者应遵守适用法律法规（含《网络安全法》《数据安全法》《个人信息保护法》及相关刑法条款），自行确保授权充分、范围不越界，并对测试数据采取相称保护。</p>
+
+    <h2>责任归属</h2>
+    <p>若将本软件用于违法用途，后果由使用者自行承担，与作者、贡献者及权利人无关。发现问题请立即停止使用并删除全部副本。</p>
+
+    <h2>开源边界</h2>
+    <p>社区仓公开的是文档站与<strong>预览编译包</strong>；核心源码与签发私钥不开源。漏洞请私下报告：<a href="mailto:kestrel-c2@outlook.com">kestrel-c2@outlook.com</a>（主题标注 <code>[SECURITY]</code>）。</p>
+
+    <h2>上线前建议</h2>
+    <ul>
+        <li>修改默认管理员密码</li>
+        <li>使用 HTTPS 或可信反向代理</li>
+        <li>限制来源 IP / VPN / 堡垒机</li>
+        <li>不需要 C2 时关闭 C2；外部 MCP 只接可信服务</li>
+    </ul>
+
+    <p><a href="index.html#ks-apply">申请试用</a> · <a href="https://github.com/Kestrel-Y/kestrelstrikeai" target="_blank" rel="noopener">GitHub</a></p>
+    <p class="ks-apply__note">文档版本 preview</p>
+</main>
+</body>
+</html>

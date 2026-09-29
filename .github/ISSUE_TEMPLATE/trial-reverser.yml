@@ -1,0 +1,55 @@
+name: 逆向人员试用申请
+description: 逆向 / 二进制分析研究人员申请部署试用
+title: "试用申请 · 逆向研究 · "
+labels: ["trial", "reverser"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢申请。请说明研究目标与授权边界（样本来源、客户授权等）。
+  - type: dropdown
+    id: edition
+    attributes:
+      label: 期望授权版本
+      options:
+        - 试用版（默认）
+        - 正式版咨询
+        - 企业版咨询
+      default: 0
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: 姓名 / 代号
+    validations:
+      required: true
+  - type: input
+    id: org
+    attributes:
+      label: 所属单位 / 实验室（可选）
+  - type: input
+    id: contact
+    attributes:
+      label: 联系方式
+      description: 邮箱 / 微信 / Telegram
+    validations:
+      required: true
+  - type: input
+    id: fingerprint
+    attributes:
+      label: 实例指纹 / 激活请求摘要（可选）
+  - type: textarea
+    id: purpose
+    attributes:
+      label: 用途说明
+      description: 研究目标、样本/授权边界、部署环境
+    validations:
+      required: true
+  - type: checkboxes
+    id: authorize
+    attributes:
+      label: 授权承诺
+      options:
+        - label: 我确认仅在已获得目标系统权利人明确书面授权的场景使用，并同意站点免责声明与安全声明。
+          required: true

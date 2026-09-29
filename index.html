@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <base href="/kestrelstrikeai/">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KestrelStrikeAI · 社区预览</title>
+    <meta name="description" content="KestrelStrikeAI —— AI 原生网络安全的行动系统：受控执行、证据沉淀、攻击链闭环。">
+    <link rel="icon" type="image/png" sizes="32x32" href="static/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="static/favicon-16.png">
+    <link rel="icon" type="image/x-icon" href="static/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="static/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="static/apple-touch-icon.png">
+    <meta name="theme-color" content="#f7f1f1" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0c090a" media="(prefers-color-scheme: dark)">
+    <!-- 主题必须在样式表之前落定：着色发生在首次绘制前，否则暗色用户会先看到一帧白底。
+         取值口径与控制台 index.html 完全一致（light / dark / system），共用同一个 localStorage 键，
+         所以落地页切过的主题进入控制台后依然生效。 -->
+    <script>
+        (function () {
+            var root = document.documentElement;
+            var stored = 'system';
+            try { stored = localStorage.getItem('kestrelstrike-theme') || 'system'; } catch (e) { stored = 'system'; }
+            if (stored !== 'light' && stored !== 'dark') { stored = 'system'; }
+            var prefersDark = false;
+            try {
+                prefersDark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            } catch (e) { prefersDark = false; }
+            var resolved = (stored === 'dark' || (stored === 'system' && prefersDark)) ? 'dark' : 'light';
+            root.setAttribute('data-theme-preference', stored);
+            root.setAttribute('data-theme', resolved);
+            root.style.colorScheme = resolved;
+            // 脚本可用标记：打字机等需要在脚本接管前保持内容不可见的区块靠它定性。
+            root.classList.add('ks-js');
+
+            // 看门狗 —— 这一段是必要的，不是保险起见。
+            //
+            // 加 ks-js 的是**这段内联脚本**，而把 [data-ks-reveal] 逐个点亮的是
+            // home.js（IntersectionObserver）。两者是分开加载的：只要 home.js
+            // 没跑起来（404、?v= 过期、被代理/CSP 拦掉、以后哪次改动引入语法错误），
+            // 就会出现「ks-js 在、is-visible 永远不来」——
+            // 22 个区块全部停在 opacity:0，整页近乎空白，**而 HTTP 状态码是 200**。
+            // 这种失败形态最难排查，所以给它一个兜底：
+            // 3 秒内 home.js 仍未接手，就摘掉 ks-js，退回「没有进场动画但内容全在」。
+            // home.js 一旦执行会立刻设置 __ksHomeReady 并清掉这个定时器。
+            window.__ksWatchdog = window.setTimeout(function () {
+                if (!window.__ksHomeReady) {
+                    root.classList.remove('ks-js');
+                    root.setAttribute('data-ks-fallback', '');
+                }
+            }, 3000);
+        })();
+    </script>
+    <link rel="stylesheet" href="static/css/home.css?v=preview">
+    <link rel="stylesheet" href="static/css/community-extra.css">
+</head>
+<body class="ks-body">
+<a class="ks-skip" href="#ks-main">跳到主要内容</a>
+
+<!-- ==== 顶部状态条 ==== -->
+<header class="ks-topbar">
+    <div class="ks-topbar__inner">
+        <a class="ks-brand" href="#ks-top" aria-label="KestrelStrikeAI 首页顶部">
+            <!-- 品牌标识与应用内顶栏共用同一张图（/static/brand-mark.png）。
+                 以前这里是内联的"盾牌 + 对勾"线性图标，和产品标识不是同一枚 ——
+                 首页、登录页、应用内三处各画一个，是品牌一致性最常见的失守点。 -->
+            <span class="ks-brand__mark" aria-hidden="true">
+                <img src="static/brand-mark.png" alt="" width="34" height="34">
+            </span>
+            <span class="ks-brand__text">
+                <span class="ks-brand__name">KestrelStrike<em>AI</em></span>
+                <span class="ks-brand__sub">RED TEAM · AI OPS</span>
+            </span>
+        </a>
+
+        <nav class="ks-nav" aria-label="页面章节导航">
+            <a href="#ks-film">宣传片</a>
+            <a href="#ks-govern">受控执行</a>
+            <a href="#ks-modes">作战模式</a>
+            <a href="#ks-apply">申请试用</a>
+            <a href="docs/quickstart.html">快速开始</a>
+            <a href="#ks-capabilities">能力矩阵</a>
+            <a href="#ks-terminal">会话实录</a>
+        </nav>
+
+        <div class="ks-topbar__meta">
+            <span class="ks-chip ks-chip--mono">preview</span>        </div>
+
+        <div class="ks-topbar__actions">
+            <button class="ks-icon-btn" type="button" id="ksThemeToggle" aria-pressed="false" aria-label="切换深色主题">
+                <span class="ks-icon-btn__icons" aria-hidden="true">
+                    <svg class="ks-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2.6v2.4M12 19v2.4M2.6 12H5M19 12h2.4M5.4 5.4l1.7 1.7M16.9 16.9l1.7 1.7M18.6 5.4l-1.7 1.7M7.1 16.9l-1.7 1.7"></path>
+                    </svg>
+                    <svg class="ks-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.2 14.6A8.6 8.6 0 1 1 9.4 3.8a6.9 6.9 0 0 0 10.8 10.8Z"></path>
+                    </svg>
+                </span>
+            </button>
+            <a class="ks-btn ks-btn--ghost ks-btn--sm" href="https://github.com/Kestrel-Y/kestrelstrikeai" target="_blank" rel="noopener">GitHub</a>
+            <a class="ks-btn ks-btn--primary ks-btn--sm" href="#ks-apply">申请试用</a>
+        </div>
+    </div>
+</header>
+
+<main id="ks-main">
+    <!-- ==== Hero ==== -->
+    <section class="ks-hero" id="ks-top">
+        <div class="ks-hero__backdrop" aria-hidden="true">
+            <div class="ks-hero__glow"></div>
+            <svg class="ks-hero__radar" viewBox="0 0 420 420" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round">
+                <circle cx="210" cy="210" r="60"></circle>
+                <circle cx="210" cy="210" r="120"></circle>
+                <circle cx="210" cy="210" r="180"></circle>
+                <path d="M210 20v42M210 358v42M20 210h42M358 210h42"></path>
+                <path d="M210 92v26M210 302v26M92 210h26M302 210h26"></path>
+                <path class="ks-hero__radar-sweep" d="M210 210 210 30"></path>
+            </svg>
+        </div>
+
+        <div class="ks-hero__inner">
+            <p class="ks-eyebrow">
+                <span class="ks-eyebrow__dot" aria-hidden="true"></span>
+                RED TEAM OPS · AUTHORIZED ENGAGEMENT ONLY
+            </p>
+            <h1 class="ks-hero__title">
+                <span class="ks-hero__title-line">KestrelStrike<em>AI</em></span>
+            </h1>
+            <p class="ks-hero__tagline">说人话，打授权目标。</p>
+            <p class="ks-hero__lede">
+                红队行动系统：自然语言驱动 Reason→Explore→Fact→Reflect。
+                内置 <strong>30+</strong> Skills、<strong>80+</strong> MCP 工具、<strong>85+</strong> 条可索引知识；
+                <strong>DSH 对话</strong>可多线并行作战，走渗透测试独立模式，调用平台 MCP / Skills，审核与审计同台留痕；
+                作战记忆三层与 Tool Guard / HITL 把执行关进治理闸门。
+            </p>
+                        <div class="ks-hero__cta">
+                <a class="ks-btn ks-btn--primary" href="#ks-apply">
+                    申请试用版激活
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4.5 12h13M12.5 6.5 18 12l-5.5 5.5"></path>
+                    </svg>
+                </a>
+                <a class="ks-btn ks-btn--ghost" href="https://github.com/Kestrel-Y/kestrelstrikeai/releases" target="_blank" rel="noopener">
+                    下载预览包
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 4v10M8 10l4 4 4-4M5 18h14"></path>
+                    </svg>
+                </a>
+                <a class="ks-btn ks-btn--ghost" href="https://github.com/Kestrel-Y/kestrelstrikeai" target="_blank" rel="noopener">
+                    GitHub
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M9 19c-4 1.5-4-2-6-2m12 4v-3.4a3 3 0 0 0-.8-2.3c2.7-.3 5.5-1.3 5.5-6A4.6 4.6 0 0 0 18 5.3 4.3 4.3 0 0 0 17.9 2S16.7 1.7 14 3.5a9.8 9.8 0 0 0-5 0C6.3 1.7 5.1 2 5.1 2A4.3 4.3 0 0 0 5 5.3 4.6 4.6 0 0 0 3.8 8.3c0 4.6 2.8 5.7 5.5 6A3 3 0 0 0 8.5 16.6V20"></path>
+                    </svg>
+                </a>
+            </div>
+<p class="ks-hero__notice">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 3 5 6v6c0 4.1 2.9 7.1 7 8 4.1-.9 7-3.9 7-8V6l-7-3Z"></path>
+                    <path d="M12 9v4M12 15.6v.4"></path>
+                </svg>
+                仅限已获得书面授权的安全测试与防御性研究
+            </p>
+        </div>
+
+        <!-- 攻击链：主视觉。五个阶段沿轨道依次点亮，代替一张静态的产品截图。 -->
+        <div class="ks-chain" data-ks-chain>
+            <div class="ks-chain__bar">
+                <h2 class="ks-chain__title">攻击链推进<span class="ks-chain__title-en">ATTACK CHAIN</span></h2>
+                <div class="ks-chain__controls">
+                    <p class="ks-chain__hint" id="ksChainHint">悬停、聚焦或用方向键查看每个阶段</p>
+                    <button class="ks-mini-btn" type="button" id="ksChainToggle" aria-pressed="false" aria-describedby="ksChainHint">
+                        <svg class="ks-mini-btn__play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="m8.5 6 9 6-9 6V6Z"></path>
+                        </svg>
+                        <svg class="ks-mini-btn__pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M9.5 6v12M14.5 6v12"></path>
+                        </svg>
+                        <span id="ksChainToggleLabel">自动推进</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="ks-chain__stage-area">
+                <div class="ks-chain__rail" aria-hidden="true">
+                    <span class="ks-chain__rail-line"></span>
+                    <span class="ks-chain__rail-progress" data-ks-chain-progress></span>
+                    <span class="ks-chain__rail-marker" data-ks-chain-marker>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 3.5 19 10l-7 6.5L5 10l7-6.5Z"></path>
+                        </svg>
+                    </span>
+                </div>
+
+                <ol class="ks-chain__stages" data-ks-chain-stages>
+                    <li class="ks-chain__stage">
+                        <button class="ks-chain__node" type="button" data-ks-stage="recon" aria-controls="ksStagePanel-recon" aria-expanded="true" id="ksStageNode-recon">
+                            <span class="ks-chain__node-index">01</span>
+                            <span class="ks-chain__node-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="6.5"></circle>
+                                    <path d="m16 16 4.5 4.5"></path>
+                                </svg>
+                            </span>
+                            <span class="ks-chain__node-label">侦察</span>
+                            <span class="ks-chain__node-en">RECON</span>
+                        </button>
+                    </li>
+                    <li class="ks-chain__stage">
+                        <button class="ks-chain__node" type="button" data-ks-stage="weaponize" aria-controls="ksStagePanel-weaponize" aria-expanded="false" id="ksStageNode-weaponize">
+                            <span class="ks-chain__node-index">02</span>
+                            <span class="ks-chain__node-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="7.5"></circle>
+                                    <circle cx="12" cy="12" r="2.2"></circle>
+                                    <path d="M12 2.4v4M12 17.6v4M2.4 12h4M17.6 12h4"></path>
+                                </svg>
+                            </span>
+                            <span class="ks-chain__node-label">武器化</span>
+                            <span class="ks-chain__node-en">WEAPONIZE</span>
+                        </button>
+                    </li>
+                    <li class="ks-chain__stage">
+                        <button class="ks-chain__node" type="button" data-ks-stage="execute" aria-controls="ksStagePanel-execute" aria-expanded="false" id="ksStageNode-execute">
+                            <span class="ks-chain__node-index">03</span>
+                            <span class="ks-chain__node-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="m9 7.5-4.5 4.5L9 16.5M15 7.5l4.5 4.5L15 16.5"></path>
+                                </svg>
+                            </span>
+                            <span class="ks-chain__node-label">执行</span>
+                            <span class="ks-chain__node-en">EXECUTE</span>
+                        </button>
+                    </li>
+                    <li class="ks-chain__stage">
+                        <button class="ks-chain__node" type="button" data-ks-stage="evidence" aria-controls="ksStagePanel-evidence" aria-expanded="false" id="ksStageNode-evidence">
+                            <span class="ks-chain__node-index">04</span>
+                            <span class="ks-chain__node-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M6.5 3.5h7l4.5 4.5v12.5h-11.5V3.5Z"></path>
+                                    <path d="M13.5 3.5V8h4.5"></path>
+                                    <path d="m9.5 14 1.8 1.8 3.4-3.6"></path>
+                                </svg>
+                            </span>
+                            <span class="ks-chain__node-label">证据</span>
+                            <span class="ks-chain__node-en">EVIDENCE</span>
+                        </button>
+                    </li>
+                    <li class="ks-chain__stage">
+                        <button class="ks-chain__node" type="button" data-ks-stage="replay" aria-controls="ksStagePanel-replay" aria-expanded="false" id="ksStageNode-replay">
+                            <span class="ks-chain__node-index">05</span>
+                            <span class="ks-chain__node-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 12a8 8 0 1 1-2.4-5.7"></path>
+                                    <path d="M20 3.8V9h-5.2"></path>
+                                    <path d="m10.8 9.6 4.6 2.4-4.6 2.4V9.6Z"></path>
+                                </svg>
+                            </span>
+                            <span class="ks-chain__node-label">回放</span>
+                            <span class="ks-chain__node-en">REPLAY</span>
+                        </button>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="ks-chain__panels">
+                <div class="ks-chain__panel is-active" id="ksStagePanel-recon" role="group" aria-labelledby="ksStageNode-recon">
+                    <p class="ks-chain__panel-desc">把目标和授权范围变成结构化资产：子域名、端口、指纹、空间测绘结果逐条落库，而不是留在聊天记录里。</p>
+                    <p class="ks-chain__panel-meta">产物：资产条目 · 暴露面清单 · 候选发现</p>
+                </div>
+                <div class="ks-chain__panel" id="ksStagePanel-weaponize" role="group" aria-labelledby="ksStageNode-weaponize">
+                    <p class="ks-chain__panel-desc">按角色加载 Skills，RAG 检索 85+ 条索引知识并注入；MCP 80+ 内置工具组装本轮动作，副舱可观测命中。</p>
+                    <p class="ks-chain__panel-meta">产物：工具清单 · 执行计划 · 风险预判</p>
+                </div>
+                <div class="ks-chain__panel" id="ksStagePanel-execute" role="group" aria-labelledby="ksStageNode-execute">
+                    <p class="ks-chain__panel-desc">执行前过策略闸门：命中安全规则直接拦截，高风险动作转入 HITL 等待人工确认，其余按策略放行。</p>
+                    <p class="ks-chain__panel-meta">产物：受控调用记录 · 人工确认意见</p>
+                </div>
+                <div class="ks-chain__panel" id="ksStagePanel-evidence" role="group" aria-labelledby="ksStageNode-evidence">
+                    <p class="ks-chain__panel-desc">工具输出结构化落地：解析结果写入资产，候选发现必须补齐证据类型才允许入库，结论可回溯到原始输出。</p>
+                    <p class="ks-chain__panel-meta">产物：证据条目 · 验证门结论</p>
+                </div>
+                <div class="ks-chain__panel" id="ksStagePanel-replay" role="group" aria-labelledby="ksStageNode-replay">
+                    <p class="ks-chain__panel-desc">攻击链建模把零散发现串成链路，审计日志支持回放与复盘，本轮结论成为下一轮行动的起点。</p>
+                    <p class="ks-chain__panel-meta">产物：攻击链视图 · 可回放审计</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==== 宣传片 ==== -->
+    <section class="ks-section" id="ks-film">
+        <header class="ks-section__head" data-ks-reveal>
+            <p class="ks-section__no">FILM</p>
+            <h2 class="ks-section__title">60 秒看懂行动链</h2>
+            <p class="ks-section__desc">
+                从自然语言下达到证据落盘：侦察、武器化、受控执行、证据与回放，一条链走完。
+                片中场景均为授权测试叙事，不包含真实目标或可复用攻击步骤。
+            </p>
+        </header>
+
+        <figure class="ks-film" data-ks-film data-ks-reveal>
+            <div class="ks-film__chrome">
+                <span class="ks-film__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                <figcaption class="ks-film__title">Kestrelstrike · 60s</figcaption>
+                <span class="ks-film__meta">1920×1080 · H.264</span>
+            </div>
+            <div class="ks-film__stage">
+                <video
+                    class="ks-film__video"
+                    id="ksFilmVideo"
+                    controls
+                    playsinline
+                    preload="metadata"
+                    poster="static/video/kestrelstrike-poster.jpg?v=preview"
+                    controlslist="nodownload"
+                >
+                    <source src="static/video/kestrelstrike.mp4?v=preview" type="video/mp4">
+                    当前浏览器不支持内嵌视频，请
+                    <a href="static/video/kestrelstrike.mp4?v=preview">下载宣传片</a>
+                    后观看。
+                </video>
+                <button class="ks-film__play" type="button" data-ks-film-play aria-controls="ksFilmVideo">
+                    <span class="ks-film__play-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="9"></circle>
+                            <path d="m10.5 8.8 5.4 3.2-5.4 3.2V8.8Z" fill="currentColor" stroke="none"></path>
+                        </svg>
+                    </span>
+                    <span class="ks-film__play-label">播放宣传片</span>
+                </button>
+            </div>
+        </figure>
+    </section>
+
+    <!-- ==== 01 受控执行 ==== -->
+    <section class="ks-section" id="ks-govern">
+        <header class="ks-section__head" data-ks-reveal>
+            <p class="ks-section__no">01</p>
+            <h2 class="ks-section__title">受控执行：不让 AI 裸奔</h2>
+            <p class="ks-section__desc">
+                智能体可以提动作，但<strong>不能自己决定能不能执行</strong>。模型给出工具调用后，先过 Tool Guard 策略闸门，
+                高风险动作转入 human-in-the-loop 等待人工确认，无论放行还是拦截都写一条审计。
+            </p>
+        </header>
+
+        <div class="ks-gate" data-ks-gate data-ks-reveal>
+            <div class="ks-gate__col">
+                <h3 class="ks-col-title">模型提出的动作</h3>
+                <fieldset class="ks-scenarios">
+                    <legend class="ks-visually-hidden">选择要提交的工具调用</legend>
+                    <label class="ks-scenario">
+                        <input type="radio" name="ks-scenario" value="low" checked
+                               data-ks-tool="mcp__nmap_scan"
+                               data-ks-args='{ "target": "10.20.14.32", "ports": "80,443,8080", "timing": "T3" }'
+                               data-ks-risk="低"
+                               data-ks-verdict="allow"
+                               data-ks-basis="策略未命中，风险等级低于确认阈值"
+                               data-ks-operator="策略引擎">
+                        <span class="ks-scenario__body">
+                            <span class="ks-scenario__head">
+                                <span class="ks-scenario__name">端口与服务识别</span>
+                                <span class="ks-risk ks-risk--low">风险 低</span>
+                            </span>
+                            <span class="ks-scenario__code">mcp__nmap_scan · 10.20.14.32</span>
+                            <span class="ks-scenario__note">授权范围内的常规探测，策略允许自动执行。</span>
+                        </span>
+                    </label>
+                    <label class="ks-scenario">
+                        <input type="radio" name="ks-scenario" value="hitl"
+                               data-ks-tool="mcp__webshell_generate"
+                               data-ks-args='{ "family": "godzilla", "language": "jsp", "param": "id", "key": "****" }'
+                               data-ks-risk="高"
+                               data-ks-verdict="hitl"
+                               data-ks-basis="命中高风险动作清单：需人工确认后才可执行"
+                               data-ks-operator="待人工确认">
+                        <span class="ks-scenario__body">
+                            <span class="ks-scenario__head">
+                                <span class="ks-scenario__name">生成 WebShell 载荷</span>
+                                <span class="ks-risk ks-risk--high">风险 高</span>
+                            </span>
+                            <span class="ks-scenario__code">mcp__webshell_generate · godzilla / jsp</span>
+                            <span class="ks-scenario__note">双用途能力，必须由人确认目标与授权依据。</span>
+                        </span>
+                    </label>
+                    <label class="ks-scenario">
+                        <input type="radio" name="ks-scenario" value="blocked"
+                               data-ks-tool="mcp__dir_enum"
+                               data-ks-args='{ "url": "https://www.example.gov.cn", "wordlist": "common" }'
+                               data-ks-risk="高"
+                               data-ks-verdict="deny"
+                               data-ks-basis="命中安全规则「政府网站保护」"
+                               data-ks-operator="策略引擎">
+                        <span class="ks-scenario__body">
+                            <span class="ks-scenario__head">
+                                <span class="ks-scenario__name">目标越界：政府站点</span>
+                                <span class="ks-risk ks-risk--block">拦截</span>
+                            </span>
+                            <span class="ks-scenario__code">mcp__dir_enum · www.example.gov.cn</span>
+                            <span class="ks-scenario__note">目标命中内置保护规则，闸门直接拒绝。</span>
+                        </span>
+                    </label>
+                </fieldset>
+
+                <div class="ks-callout" data-ks-proposal>
+                    <p class="ks-callout__label">当前提案</p>
+                    <p class="ks-callout__tool" data-ks-proposal-tool>mcp__nmap_scan</p>
+                    <pre class="ks-callout__args" data-ks-proposal-args>{ "target": "10.20.14.32", "ports": "80,443,8080", "timing": "T3" }</pre>
+                    <p class="ks-callout__risk">风险等级：<span data-ks-proposal-risk>低</span></p>
+                </div>
+            </div>
+
+            <div class="ks-gate__col ks-gate__col--gate">
+                <h3 class="ks-col-title">策略闸门</h3>
+                <div class="ks-gate__state" data-ks-gate-state data-state="idle" role="status">
+                    <span class="ks-gate__state-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="8.5"></circle>
+                            <path d="M12 7.5V12l3 1.8"></path>
+                        </svg>
+                    </span>
+                    <span class="ks-gate__state-text" data-ks-gate-state-text>等待提交</span>
+                </div>
+
+                <ol class="ks-gate__steps" data-ks-gate-steps>
+                    <li data-ks-step="propose"><span class="ks-step__dot" aria-hidden="true"></span>提出动作</li>
+                    <li data-ks-step="policy"><span class="ks-step__dot" aria-hidden="true"></span>策略判定</li>
+                    <li data-ks-step="hitl"><span class="ks-step__dot" aria-hidden="true"></span>人工确认</li>
+                    <li data-ks-step="decision"><span class="ks-step__dot" aria-hidden="true"></span>放行 / 拦截</li>
+                    <li data-ks-step="audit"><span class="ks-step__dot" aria-hidden="true"></span>写入审计</li>
+                </ol>
+
+                <div class="ks-gate__actions">
+                    <button class="ks-btn ks-btn--primary ks-btn--sm" type="button" data-ks-action="submit">提交动作</button>
+                    <button class="ks-btn ks-btn--approve ks-btn--sm" type="button" data-ks-action="approve" disabled>批准执行</button>
+                    <button class="ks-btn ks-btn--danger ks-btn--sm" type="button" data-ks-action="reject" disabled>拒绝</button>
+                    <button class="ks-btn ks-btn--ghost ks-btn--sm" type="button" data-ks-action="reset">重置</button>
+                </div>
+                <p class="ks-gate__footnote">演示在浏览器本地完成状态流转，不会发起任何真实工具调用；「重置」只复位闸门，已写入的审计条目按只追加的语义保留。</p>
+            </div>
+
+            <div class="ks-gate__col ks-gate__col--audit">
+                <h3 class="ks-col-title">审计条目<span class="ks-col-title__hint">可回放</span></h3>
+                <ul class="ks-audit" data-ks-audit aria-live="polite">
+                    <li class="ks-audit__empty" data-ks-audit-empty>尚无记录。提交一次动作后，判定依据、操作者与结果都会留在这里。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==== 02 执行模式 ==== -->
+    <section class="ks-section" id="ks-modes">
+        <header class="ks-section__head" data-ks-reveal>
+            <p class="ks-section__no">02</p>
+            <h2 class="ks-section__title">四种作战模式</h2>
+            <p class="ks-section__desc">
+                与控制台「作战模式」同一套口径：单兵突击、深度作战、计划执行、专家协同。
+                换模式不换平台，工具、策略闸门与证据链共用。
+            </p>
+        </header>
+
+        <div class="ks-modes" data-ks-tabs data-ks-reveal>
+            <div class="ks-tabs" role="tablist" aria-label="作战模式">
+                <button class="ks-tab" type="button" role="tab" id="ksTab-eino" aria-controls="ksPanel-eino" aria-selected="true" tabindex="0">
+                    <span class="ks-tab__name">单兵突击</span>
+                    <span class="ks-tab__tag">短回合点验</span>
+                </button>
+                <button class="ks-tab" type="button" role="tab" id="ksTab-deep" aria-controls="ksPanel-deep" aria-selected="false" tabindex="-1">
+                    <span class="ks-tab__name">深度作战</span>
+                    <span class="ks-tab__tag">长链路委派</span>
+                </button>
+                <button class="ks-tab" type="button" role="tab" id="ksTab-plan" aria-controls="ksPanel-plan" aria-selected="false" tabindex="-1">
+                    <span class="ks-tab__name">计划执行</span>
+                    <span class="ks-tab__tag">先规划再执行</span>
+                </button>
+                <button class="ks-tab" type="button" role="tab" id="ksTab-supervisor" aria-controls="ksPanel-supervisor" aria-selected="false" tabindex="-1">
+                    <span class="ks-tab__name">专家协同</span>
+                    <span class="ks-tab__tag">多专家分工</span>
+                </button>
+            </div>
+
+            <div class="ks-panels">
+                <div class="ks-panel is-active" role="tabpanel" id="ksPanel-eino" aria-labelledby="ksTab-eino" tabindex="0">
+                    <p class="ks-panel__lead">一条主线短回合推进，适合信息收集与单点验证。</p>
+                    <p class="ks-panel__desc">
+                        控制台默认「单兵突击」：单个执行引擎直调 MCP 工具，链路最短、随时可介入。
+                        内核仍是 Eino ChatModelAgent，界面只暴露作战口径。
+                    </p>
+                    <dl class="ks-panel__facts">
+                        <div><dt>作战口径</dt><dd>单兵突击 · 短回合点验</dd></div>
+                        <div><dt>适用场景</dt><dd>信息收集、单点验证、要随时介入的测试</dd></div>
+                        <div><dt>策略闸门</dt><dd>每个 MCP 工具调用照常过 Tool Guard 与 HITL</dd></div>
+                    </dl>
+                </div>
+                <div class="ks-panel" role="tabpanel" id="ksPanel-deep" aria-labelledby="ksTab-deep" tabindex="0">
+                    <p class="ks-panel__lead">长链路拆任务委派，主线负责汇总收敛。</p>
+                    <p class="ks-panel__desc">
+                        「深度作战」把大任务拆成子任务并行推进，适合耗时长、阶段多、需要反复试错的复杂渗透。
+                        子代理工具调用同样受策略约束。
+                    </p>
+                    <dl class="ks-panel__facts">
+                        <div><dt>作战口径</dt><dd>深度作战 · 长链路委派</dd></div>
+                        <div><dt>适用场景</dt><dd>复杂渗透、长链路、并行探索后汇总</dd></div>
+                        <div><dt>可控性</dt><dd>子代理不放大权限，仍走 Tool Guard / HITL</dd></div>
+                    </dl>
+                </div>
+                <div class="ks-panel" role="tabpanel" id="ksPanel-plan" aria-labelledby="ksTab-plan" tabindex="0">
+                    <p class="ks-panel__lead">先规划再执行；结果反过来修正计划。</p>
+                    <p class="ks-panel__desc">
+                        「计划执行」走规划 → 执行 → 重规划：计划是活的，执行结果可触发重规划，
+                        避免一条错路径走到黑，也便于交付清单与可验收步骤。
+                    </p>
+                    <dl class="ks-panel__facts">
+                        <div><dt>作战口径</dt><dd>计划执行 · 先规划再执行</dd></div>
+                        <div><dt>适用场景</dt><dd>交付清单、路径不确定、需先摸清暴露面</dd></div>
+                        <div><dt>可观测</dt><dd>计划与重规划随执行流实时上报</dd></div>
+                    </dl>
+                </div>
+                <div class="ks-panel" role="tabpanel" id="ksPanel-supervisor" aria-labelledby="ksTab-supervisor" tabindex="0">
+                    <p class="ks-panel__lead">监督者按领域把活派给专家子代理。</p>
+                    <p class="ks-panel__desc">
+                        「专家协同」按 Web、二进制、容器、云、取证等归口分派，适合跨技术栈综合评估。
+                        与控制台角色库、transfer 路由同一套。
+                    </p>
+                    <dl class="ks-panel__facts">
+                        <div><dt>作战口径</dt><dd>专家协同 · 多专家分工</dd></div>
+                        <div><dt>适用场景</dt><dd>跨域分工汇总、多领域综合评估</dd></div>
+                        <div><dt>专家来源</dt><dd>内置角色库（渗透测试、二进制分析、云安全审计等）</dd></div>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==== 03 DSH 对话 ==== -->
+    <section class="ks-section" id="ks-dsh">
+        <header class="ks-section__head" data-ks-reveal>
+            <p class="ks-section__no">03</p>
+            <h2 class="ks-section__title">DSH 对话：多线作战运行时</h2>
+            <p class="ks-section__desc">
+                导航栏「DSH 对话」内嵌真实 DeepSeek Harness 桌面客户端——不是仿 UI。
+                DSH 负责编排与自主执行，平台工具面（MCP / Skills / C2 / 知识库）作为受治理的能力来源；
+                可与平台主对话并行，适合多目标、多会话同时推进。
+            </p>
+        </header>
+
+        <div class="ks-dsh" data-ks-reveal>
+            <div class="ks-dsh__col">
+                <p class="ks-col-title">多线作战</p>
+                <ul class="ks-c2__list">
+                    <li>多会话并行：不同目标、不同项目工作区可同时开打，互不抢同一条时间线</li>
+                    <li>工作区对齐平台项目：面板「工作区」= 平台项目目录，证据与事实回流同一项目黑板</li>
+                    <li>与主对话互补：主对话走作战模式编排；DSH 走桌面级 Agent 循环，可同时在线</li>
+                </ul>
+
+                <p class="ks-col-title">MCP · Skills 同台调用</p>
+                <ul class="ks-c2__list">
+                    <li>经平台 MCP 通道调用资产 / 漏洞 / C2 / WebShell / 知识检索等，RBAC 按账号令牌判定</li>
+                    <li>可加载平台 Skills playbook，按任务形状选方法论，而不是裸模型硬猜</li>
+                    <li>工具调用进平台监控账本；被拒调用记 <code>blocked</code>，可复盘</li>
+                </ul>
+            </div>
+
+            <div class="ks-dsh__col">
+                <p class="ks-col-title">渗透测试独立模式</p>
+                <ul class="ks-c2__chips">
+                    <li class="ks-chip ks-chip--mono">渗透测试模式</li>
+                    <li class="ks-chip ks-chip--mono">权限预设</li>
+                    <li class="ks-chip ks-chip--mono">Agent 预设</li>
+                    <li class="ks-chip ks-chip--mono">授权范围自检</li>
+                </ul>
+                <ul class="ks-c2__list">
+                    <li><strong>渗透测试模式</strong>：面向授权范围内的作业——平台工具优先、授权范围自检、结果回流证据链</li>
+                    <li>只读 / 审计类账号看不到该模式；能动手的账号才可选，避免「点一下提权」</li>
+                    <li>权限档位切换写入平台审计（<code>dsh.permission_mode</code>），谁改了模式可追溯</li>
+                </ul>
+
+                <p class="ks-col-title">审核 · 审计 · 产品自保护</p>
+                <ul class="ks-grid ks-grid--compact">
+                    <li class="ks-card ks-card--compact">
+                        <h3 class="ks-card__title">审批闸门</h3>
+                        <p class="ks-card__desc">DSH 权限预设可要求原生命令先审批；高风险动作不静默放行。</p>
+                    </li>
+                    <li class="ks-card ks-card--compact">
+                        <h3 class="ks-card__title">平台审计</h3>
+                        <p class="ks-card__desc">模式变更、产品路径硬拒绝等落平台审计；与主台账同一套复盘入口。</p>
+                    </li>
+                    <li class="ks-card ks-card--compact">
+                        <h3 class="ks-card__title">Product Guard</h3>
+                        <p class="ks-card__desc">触及平台安装树（源码 / skills / 二进制等）任意档位硬拒绝并记审计。</p>
+                    </li>
+                    <li class="ks-card ks-card--compact">
+                        <h3 class="ks-card__title">同源内嵌</h3>
+                        <p class="ks-card__desc">客户端挂在平台同源路径，无第二端口、无跨源 iframe 拦载问题。</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <p class="ks-dsh__foot" data-ks-reveal>
+            进入控制台后打开左侧「DSH 对话」即可；需在配置中启用 <code>dsh.enabled</code> 与面板，并完成模型 Key 引导。
+        </p>
+    </section>
+
+    <!-- ==== 04 能力矩阵 ==== -->
+    <section class="ks-section" id="ks-capabilities">
+        <header class="ks-section__head" data-ks-reveal>
+            <p class="ks-section__no">04</p>
+            <h2 class="ks-section__title">能力矩阵</h2>
+            <p class="ks-section__desc">
+                从知识观测、执行记忆到受控工具链与 C2，红队作业的关键能力放进同一套可审计框架。
+            </p>
+        </header>
+
+        <ol class="ks-grid">
+            <li class="ks-card" data-ks-reveal>
+                <span class="ks-card__no">01</span>
+                <span class="ks-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="18" cy="5.2" r="2.6"></circle>
+                        <circle cx="6" cy="12" r="2.6"></circle>
+                        <circle cx="18" cy="18.8" r="2.6"></circle>
+                        <path d="m8.3 10.8 7.4-4.2M8.3 13.2l7.4 4.2"></path>
+                    </svg>
+                </span>
+                <h3 class="ks-card__title">作战模式 + 战术纠偏</h3>
+                <p class="ks-card__desc">单兵突击 / 深度作战 / 计划执行 / 专家协同；Mentor·Reflector 在回合内纠偏，避免空转。</p>
+            </li>
+            <li class="ks-card" data-ks-reveal>
+                <span class="ks-card__no">02</span>
+                <span class="ks-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="14" rx="2"></rect>
+                        <path d="M8 21h8M12 18v3"></path>
+                        <path d="M7 9h4M7 12h10"></path>
+                    </svg>
+                </span>
+                <h3 class="ks-card__title">DSH 多线作战</h3>
+                <p class="ks-card__desc">内嵌真实 Harness 客户端；多会话并行、渗透测试独立模式、调 MCP/Skills，审核与审计同台。</p>
+            </li>
+            <li class="ks-card" data-ks-reveal>
+                <span class="ks-card__no">03</span>
+                <span class="ks-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3 5 6v6c0 4.1 2.9 7.1 7 8 4.1-.9 7-3.9 7-8V6l-7-3Z"></path>
+                        <path d="m9 12 2.2 2.2L15.4 10"></path>
+                    </svg>
+                </span>
+                <h3 class="ks-card__title">受控执行 · Tool Guard + HITL</h3>
+                <p class="ks-card__desc">工具名与参数先过策略规则，高风险动作转人工确认，规则命中直接拦截。</p>
+            </li>
+            <li class="ks-card" data-ks-reveal>
+                <span class="ks-card__no">04</span>
+                <span class="ks-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 7.6 12 4l8 3.6-8 3.6-8-3.6Z"></path>
+                        <path d="M4 12.6 12 16.2l8-3.6"></path>
+                        <path d="M4 17.2 12 20.8l8-3.6"></path>
+                    </svg>
+                </span>
+                <h3 class="ks-card__title">证据链与验证门</h3>
+                <p class="ks-card__desc">工具输出结构化落地为资产；漏洞入库必须带证据类型，结论可回溯到真实输出。</p>
+            </li>
+            <li class="ks-card" data-ks-reveal>
+                <span class="ks-card__no">05</span>
+                <span class="ks-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="6" cy="6" r="2.4"></circle>
+                        <circle cx="6" cy="18" r="2.4"></circle>
+                        <circle cx="18" cy="12" r="2.4"></circle>
+                        <path d="M8.4 6h4.2a3 3 0 0 1 3 3v.6M8.4 18h4.2a3 3 0 0 0 3-3v-.6"></path>
+                    </svg>
+                </span>
+                <h3 class="ks-card__title">攻击链建模与分析</h3>
+                <p class="ks-card__desc">把零散发现串成链路，看清从初始入口到最终影响是怎么一步步走通的。</p>
+            </li>
+            <li class="ks-card" data-ks-reveal>
+                <span class="ks-card__no">06</span>
+                <span class="ks-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 3.5V8M15 3.5V8"></path>
+                        <path d="M7 8h10v3.2a5 5 0 0 1-10 0V8Z"></path>
+                        <path d="M12 16.2v4.3"></path>
+                    </svg>
+                </span>
+                <h3 class="ks-card__title">MCP 原生 · 80+ 内置工具</h3>
+                <p class="ks-card__desc">资产 / 漏洞 / 项目事实 / C2 / WebShell / 批量任务等以 MCP 统一接入；可挂 External MCP，一律过 Tool Guard。</p>
+            </li>
+            <li class="ks-card" data-ks-reveal>
+                <span class="ks-card__no">07</span>
+                <span class="ks-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="16" rx="2.2"></rect>
+                        <path d="m7.5 9.5 3 2.5-3 2.5M13.5 15h4"></path>
+                    </svg>
+                </span>
+                <h3 class="ks-card__title">Skills 技能包 · 30+</h3>
+                <p class="ks-card__desc">众测 / 交付 / 红队 / 白盒 playbook 开箱可加载；含侦察、利用、验证与输出规范，按作战角色路由。</p>
+            </li>
+            <li class="ks-card" data-ks-reveal>
+                <span class="ks-card__no">08</span>
+                <span class="ks-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 6.6C10.4 5.4 8.4 4.8 5.6 4.8c-.8 0-1.6.1-2.6.3v12.8c1-.2 1.8-.3 2.6-.3 2.8 0 4.8.6 6.4 1.8 1.6-1.2 3.6-1.8 6.4-1.8.8 0 1.6.1 2.6.3V5.1c-1-.2-1.8-.3-2.6-.3-2.8 0-4.8.6-6.4 1.8Z"></path>
+                        <path d="M12 6.6v12.8"></path>
+                    </svg>
+                </span>
+                <h3 class="ks-card__title">索引知识库 · 85+ 条 / 29 类</h3>
+                <p class="ks-card__desc">内置方法论语料可向量检索；按目标指纹自动注入，会话副舱展示命中，不只靠模型主动搜。</p>
+            </li>
+            <li class="ks-card" data-ks-reveal>
+                <span class="ks-card__no">09</span>
+                <span class="ks-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3v4M12 17v4M4.9 7.5l3 2M16.1 14.5l3 2M4.9 16.5l3-2M16.1 9.5l3-2"></path>
+                        <circle cx="12" cy="12" r="3.2"></circle>
+                    </svg>
+                </span>
+                <h3 class="ks-card__title">作战记忆三层</h3>
+                <p class="ks-card__desc">会话上下文连着打；知识观测看本轮注入/检索；执行记忆（guide / answer / code）落项目黑板，跨轮可搜复用。</p>
+            </li>
+            <li class="ks-card" data-ks-reveal>
+                <span class="ks-card__no">10</span>
+                <span class="ks-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2.6" y="4" width="18.8" height="16" rx="2.4"></rect>
+                        <path d="m9.6 9.4-3.2 2.6 3.2 2.6M14.4 9.4l3.2 2.6-3.2 2.6"></path>
+                    </svg>
+                </span>
+                <h3 class="ks-card__title">WebShell 管理</h3>
+                <p class="ks-card__desc">支持一句话、冰蝎、哥斯拉、蚁剑、菜刀与自定义协议，可生成 PHP / JSP / ASPX / ASP 载荷。</p>
+            </li>
+            <li class="ks-card" data-ks-reveal>
+                <span class="ks-card__no">11</span>
+                <span class="ks-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="2.2"></circle>
+                        <path d="M8.2 15.8a5.4 5.4 0 0 1 0-7.6M15.8 8.2a5.4 5.4 0 0 1 0 7.6"></path>
+                        <path d="M5.4 18.6a9.3 9.3 0 0 1 0-13.2M18.6 5.4a9.3 9.3 0 0 1 0 13.2"></path>
+                    </svg>
+                </span>
+                <h3 class="ks-card__title">C2 控制台</h3>
+                <p class="ks-card__desc">listener 监听、session 会话与任务下发集中在一个控制台里管理。</p>
+            </li>
+            <li class="ks-card" data-ks-reveal>
+                <span class="ks-card__no">12</span>
+                <span class="ks-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4.2" y="10" width="15.6" height="10" rx="2.2"></rect>
+                        <path d="M8 10V7.6a4 4 0 0 1 8 0V10"></path>
+                        <path d="M9.4 15h5.2"></path>
+                    </svg>
+                </span>
+                <h3 class="ks-card__title">RBAC 权限与审计日志</h3>
+                <p class="ks-card__desc">角色化权限控制，所有操作留痕，可审计、可回放、可复盘。</p>
+            </li>
+            <li class="ks-card" data-ks-reveal>
+                <span class="ks-card__no">13</span>
+                <span class="ks-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                        <ellipse cx="12" cy="6" rx="7" ry="3"></ellipse>
+                        <path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"></path>
+                        <path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"></path>
+                    </svg>
+                </span>
+                <h3 class="ks-card__title">资产 · 漏洞 · 项目 · 任务</h3>
+                <p class="ks-card__desc">发现落到资产与漏洞台账，按项目和任务组织，覆盖度算得出来。</p>
+            </li>
+        </ol>
+
+        <div class="ks-roles" data-ks-reveal>
+            <p class="ks-roles__label">内置专业角色（12）· 另有 1 个默认角色</p>
+            <ul class="ks-roles__list">
+                <li>渗透测试</li>
+                <li>二进制分析</li>
+                <li>后渗透测试</li>
+                <li>容器安全</li>
+                <li>信息收集</li>
+                <li>数字取证</li>
+                <li>云安全审计</li>
+                <li>综合漏洞扫描</li>
+                <li>API 安全测试</li>
+                <li>CTF</li>
+                <li>Web 框架测试</li>
+                <li>Web 应用扫描</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ==== 05 C2 控制台 ==== -->
+    <section class="ks-section" id="ks-c2">
+        <header class="ks-section__head" data-ks-reveal>
+            <p class="ks-section__no">05</p>
+            <h2 class="ks-section__title">C2 控制台：会话、载荷与后渗透</h2>
+            <p class="ks-section__desc">
+                除了 WebShell，平台还内置了一套团队服务器式的 C2 运维台，<strong>内置 47 种能力</strong>：
+                监听器、载荷生成、会话与后渗透操作面在同一个界面里，并且和平台的权限、审计走同一套边界。
+            </p>
+        </header>
+
+        <div class="ks-c2">
+            <div class="ks-c2__col" data-ks-reveal>
+                <p class="ks-col-title">六类监听器</p>
+                <ul class="ks-c2__chips">
+                    <li class="ks-chip ks-chip--mono">HTTP / HTTPS</li>
+                    <li class="ks-chip ks-chip--mono">TCP</li>
+                    <li class="ks-chip ks-chip--mono">UDP</li>
+                    <li class="ks-chip ks-chip--mono">DNS</li>
+                    <li class="ks-chip ks-chip--mono">DoH</li>
+                    <li class="ks-chip ks-chip--mono">SMB 命名管道</li>
+                </ul>
+
+                <p class="ks-col-title">载荷生成</p>
+                <ul class="ks-c2__list">
+                    <li>分阶段（staged）与无阶段（stageless）两种形态</li>
+                    <li>Windows x64 / x86 的 stager EXE 与裸 shellcode</li>
+                    <li>可挂载内置模块，按需扩展载荷能力</li>
+                    <li>监听器参数（传输方式、主机、端口、管道名）随载荷一起生成</li>
+                </ul>
+
+                <p class="ks-col-title">作战室</p>
+                <ul class="ks-c2__list">
+                    <li>团队服务器的连接与重连集中管理</li>
+                    <li>令牌失效后自动重新登录，不必每次重启平台人工点一次</li>
+                    <li>支持无人值守自动建链（口令从进程外部读取，见下）</li>
+                </ul>
+            </div>
+
+            <div class="ks-c2__col" data-ks-reveal>
+                <p class="ks-col-title">会话与后渗透操作面</p>
+                <ul class="ks-grid ks-grid--compact">
+                    <li class="ks-card ks-card--compact">
+                        <h3 class="ks-card__title">会话管理</h3>
+                        <p class="ks-card__desc">平台识别、进程与监听器类型，按需筛选与批量下发。</p>
+                    </li>
+                    <li class="ks-card ks-card--compact">
+                        <h3 class="ks-card__title">屏幕墙</h3>
+                        <p class="ks-card__desc">多会话桌面平铺一览，双击进入实时桌面操作。</p>
+                    </li>
+                    <li class="ks-card ks-card--compact">
+                        <h3 class="ks-card__title">交互式 Shell</h3>
+                        <p class="ks-card__desc">bshell 交互会话，命令与输出留在会话记录里。</p>
+                    </li>
+                    <li class="ks-card ks-card--compact">
+                        <h3 class="ks-card__title">文件管理</h3>
+                        <p class="ks-card__desc">浏览、上传下载与路径跳转。</p>
+                    </li>
+                    <li class="ks-card ks-card--compact">
+                        <h3 class="ks-card__title">键盘记录</h3>
+                        <p class="ks-card__desc">按键记录面板，按会话归集。</p>
+                    </li>
+                    <li class="ks-card ks-card--compact">
+                        <h3 class="ks-card__title">防火墙态势图</h3>
+                        <p class="ks-card__desc">把目标上的规则与连通关系画出来看。</p>
+                    </li>
+                    <li class="ks-card ks-card--compact">
+                        <h3 class="ks-card__title">大载荷传输</h3>
+                        <p class="ks-card__desc">大文件预览与下载，避免把交互会话堵死。</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 两块能力介绍。都做成整幅的"板"，而不是塞进上面的两栏里：
+             跨平台是清单型的横向信息，AI 协同是带说明与约束的段落型信息，
+             硬凑成左右两栏只会让其中一栏留出大片空白。 -->
+        <div class="ks-c2__more">
+            <div class="ks-c2__block" data-ks-reveal>
+                <div class="ks-c2__block-head">
+                    <p class="ks-col-title">跨平台上线</p>
+                    <ul class="ks-c2__chips">
+                        <li class="ks-chip">Windows x64 / x86</li>
+                        <li class="ks-chip">macOS arm64 / x64</li>
+                        <li class="ks-chip">Linux x64 / arm64</li>
+                    </ul>
+                </div>
+                <ul class="ks-c2__list ks-c2__list--cols">
+                    <li><strong>Windows x64 / x86</strong>：无阶段 EXE、DLL、裸 shellcode、PIC 宿主；另有分阶段 stager（Plug / PIC，含 shellcode 形态）与 binder。</li>
+                    <li><strong>Windows deploy 变体</strong>：Plug / PIC 两种形态，用于需要落地后再拉起的链路。</li>
+                    <li><strong>macOS arm64 / x64</strong>：无阶段载荷。</li>
+                    <li><strong>Linux x64 / arm64</strong>：无阶段载荷，另有 deploy 变体。</li>
+                    <li><strong>参数随监听器生成</strong>：传输方式、主机、端口、管道名直接写进载荷，不用生成完再回头改配置。</li>
+                </ul>
+            </div>
+
+            <div class="ks-c2__block ks-c2__block--ai" data-ks-reveal>
+                <div class="ks-c2__block-head">
+                    <p class="ks-col-title">AI 大脑同步协同作战<span class="ks-col-title__hint">MCP 原生工具</span></p>
+                </div>
+                <p class="ks-c2__lead">
+                    AI 在这里<strong>不是"看着操作员操作"的旁观者</strong>：运维台里能做的事，它通过 MCP 工具同样能做，
+                    并且和人的操作走同一套权限与审计。
+                </p>
+                <ul class="ks-c2__tools">
+                    <li><code>看</code><span>会话、任务、事件、代理、凭据，一眼看清当前态势</span></li>
+                    <li><code>派</code><span>向指定会话下发任务<em class="ks-c2__badge">默认仅放行侦察类</em></span></li>
+                    <li><code>等</code><span>有界等待任务完成并取回输出，不必反复轮询</span></li>
+                    <li><code>调</code><span>调整 beacon 间隔，按需要降噪或提速</span></li>
+                    <li class="is-key"><code>同步</code><span>与运维台读同一条事件流，看到的是<strong>同一份状态</strong>，不是事后读一份离线报告</span></li>
+                </ul>
+                <div class="ks-c2__facts">
+                    <p class="ks-c2__fact">
+                        <strong>它拿到 C2 不是无限制的</strong>
+                        工具白名单（默认只放行只读侦察动作）、<code>c2:task</code> 权限点、人工确认三道约束叠加；
+                        <code>shell</code>、<code>inject</code>、<code>cred_dump</code> 这类会改变目标状态的动作会被拒绝，须人工在「C2 运维台」确认。
+                    </p>
+                    <p class="ks-c2__fact">
+                        <strong>每条任务都要给理由</strong>
+                        派发任务时"为什么现在要做这一步"是<strong>必填</strong>，这句话连同结果一起进审计，可回放复盘。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="ks-callout" data-ks-reveal>
+            <p class="ks-callout__label">C2 的安全边界</p>
+            <ul class="ks-c2__list">
+                <li><strong>endpoints 白名单</strong>：留空时任何持有 <code>c2:connect</code> 的用户都能让后端连任意可达地址，并借错误信息探测端口——等于一个 SSRF 原语。生产部署应显式填写。</li>
+                <li><strong>证书固定优先</strong>：配了 <code>ca_file</code> 就以证书固定为准，<code>insecure_skip_verify</code> 只是实验环境的退路。</li>
+                <li><strong>专用运维账号</strong>：建议用 <code>role=operator</code> 而非 <code>super_admin</code>——链路身份就是"平台能对团队服务器做什么"的上限。</li>
+                <li><strong>口令不落配置文件</strong>：自动连接的口令只从环境变量或 0600 文件读取。配置文件会进版本库、进备份，也会出现在 <code>GET /api/config</code> 的响应里。</li>
+                <li><strong>可直接关闭</strong>：<code>c2.enabled: false</code> 时整个 <code>/api/c2</code> 路由组不注册，控制台页面明确提示未启用，而不是留一个空壳页面。</li>
+            </ul>
+        </div>
+
+        <!-- ==== 演示步骤播放器 ====
+             不引外部视频：页面要保持自包含，素材站上那种通用演示又和平台本身关联不大。
+             所以这里做成"像视频一样播放的步骤演示"——六幕各自是一屏 HTML/CSS 画的界面示意，
+             连起来就是本平台一次真实流转（生成载荷 → 上线 → AI 接入 → 派发 → 证据与审计）。
+             六幕的正文全部写在 HTML 里并且始终存在，脚本只负责切换当前幕。 -->
+        <div class="ks-demo" data-ks-demo data-ks-demo-index="0" data-ks-demo-total="6" data-ks-reveal>
+            <div class="ks-demo__head">
+                <div class="ks-demo__head-text">
+                    <h3 class="ks-demo__title">演示步骤：从生成载荷到审计留痕</h3>
+                    <p class="ks-demo__sub">六幕走完一次受控流转。每一幕都是静态界面示意，不含任何外部素材或视频文件。</p>
+                </div>
+                <div class="ks-demo__transport">
+                    <button class="ks-icon-btn" type="button" id="ksDemoPrev" aria-label="上一幕">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M14.5 6.5 9 12l5.5 5.5"></path>
+                        </svg>
+                    </button>
+                    <button class="ks-mini-btn" type="button" id="ksDemoToggle" aria-pressed="true">
+                        <svg class="ks-mini-btn__play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="m8.5 6 9 6-9 6V6Z"></path>
+                        </svg>
+                        <svg class="ks-mini-btn__pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M9.5 6v12M14.5 6v12"></path>
+                        </svg>
+                        <span id="ksDemoToggleLabel">暂停</span>
+                    </button>
+                    <button class="ks-icon-btn" type="button" id="ksDemoNext" aria-label="下一幕">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M9.5 6.5 15 12l-5.5 5.5"></path>
+                        </svg>
+                    </button>
+                    <p class="ks-demo__counter" role="status" aria-live="polite">
+                        <span data-ks-demo-current>1</span><span class="ks-demo__counter-sep">/</span>6
+                    </p>
+                </div>
+            </div>
+
+            <div class="ks-demo__layout">
+                <div class="ks-demo__viewer">
+                    <div class="ks-demo__stage" data-ks-demo-stage>
+                        <div class="ks-demo__scene is-active" data-ks-demo-scene="0" role="group" aria-label="第 1 幕：选平台与载荷">
+                            <p class="ks-demo__caption"><span class="ks-demo__step">01</span>选平台与载荷</p>
+                            <div class="ks-demo__form">
+                                <div class="ks-demo__field">
+                                    <span class="ks-demo__label">目标平台</span>
+                                    <span class="ks-demo__options">
+                                        <span class="ks-demo__pill is-on">Windows x64</span>
+                                        <span class="ks-demo__pill">Windows x86</span>
+                                        <span class="ks-demo__pill">macOS arm64</span>
+                                        <span class="ks-demo__pill">macOS x64</span>
+                                        <span class="ks-demo__pill">Linux x64</span>
+                                        <span class="ks-demo__pill">Linux arm64</span>
+                                    </span>
+                                </div>
+                                <div class="ks-demo__field">
+                                    <span class="ks-demo__label">载荷形态</span>
+                                    <span class="ks-demo__options">
+                                        <span class="ks-demo__pill is-on">无阶段 EXE</span>
+                                        <span class="ks-demo__pill">DLL</span>
+                                        <span class="ks-demo__pill">裸 shellcode</span>
+                                        <span class="ks-demo__pill">分阶段 stager</span>
+                                    </span>
+                                </div>
+                                <div class="ks-demo__field">
+                                    <span class="ks-demo__label">关联监听器</span>
+                                    <span class="ks-demo__options">
+                                        <span class="ks-demo__pill is-on">HTTPS · 0.0.0.0:8443</span>
+                                        <span class="ks-demo__pill">DNS</span>
+                                        <span class="ks-demo__pill">SMB 命名管道</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <p class="ks-demo__note">平台与形态共同决定可用变体：Windows 另有 deploy（Plug / PIC）与分阶段 stager（Plug / PIC，含 shellcode 形态），以及 binder。</p>
+                        </div>
+
+                        <div class="ks-demo__scene" data-ks-demo-scene="1" role="group" aria-label="第 2 幕：生成并投递">
+                            <p class="ks-demo__caption"><span class="ks-demo__step">02</span>生成并投递</p>
+                            <p class="ks-demo__banner">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="m5 12.8 4.4 4.4L19 7.6"></path>
+                                </svg>
+                                载荷已生成 · beacon_x64.exe · 无阶段 · Windows x64
+                            </p>
+                            <dl class="ks-demo__kv">
+                                <div><dt>传输方式</dt><dd>HTTPS</dd></div>
+                                <div><dt>主机</dt><dd>cdn.example.com</dd></div>
+                                <div><dt>端口</dt><dd>8443</dd></div>
+                                <div><dt>管道名</dt><dd>\\.\pipe\msagent_7f3</dd></div>
+                            </dl>
+                            <p class="ks-demo__note">这四项参数取自关联监听器，生成时一并写进载荷，不用生成完再回头改配置。产物 142 KB，校验值随构建记录一起落盘。</p>
+                        </div>
+
+                        <div class="ks-demo__scene" data-ks-demo-scene="2" role="group" aria-label="第 3 幕：会话上线">
+                            <p class="ks-demo__caption"><span class="ks-demo__step">03</span>会话上线</p>
+                            <div class="ks-demo__sess is-new">
+                                <p class="ks-demo__sess-head"><span class="ks-demo__sess-host">WEB-DC-02</span><span class="ks-demo__tag">新上线</span></p>
+                                <ul class="ks-demo__meta">
+                                    <li>windows/x64</li>
+                                    <li>explorer.exe · PID 5124</li>
+                                    <li>监听器 HTTPS</li>
+                                    <li>beacon 60s ± 20%</li>
+                                </ul>
+                            </div>
+                            <div class="ks-demo__sess">
+                                <p class="ks-demo__sess-head"><span class="ks-demo__sess-host">FILE-01</span><span class="ks-demo__tag ks-demo__tag--dim">在线</span></p>
+                                <ul class="ks-demo__meta">
+                                    <li>windows/x64</li>
+                                    <li>svchost.exe · PID 1180</li>
+                                    <li>监听器 DNS</li>
+                                    <li>beacon 120s ± 30%</li>
+                                </ul>
+                            </div>
+                            <p class="ks-demo__note">新会话一上线就进了事件流：平台按 <code>c2.event_poll_ms</code>（默认 1000ms）轮询团队服务器的 <code>/v1/events</code>。</p>
+                        </div>
+
+                        <div class="ks-demo__scene" data-ks-demo-scene="3" role="group" aria-label="第 4 幕：AI 接入协同">
+                            <p class="ks-demo__caption"><span class="ks-demo__step">04</span>AI 接入协同 · 同一份状态</p>
+                            <div class="ks-demo__split">
+                                <div class="ks-demo__pane">
+                                    <p class="ks-demo__pane-title">C2 运维台<span>轮询 /v1/events · 1000ms</span></p>
+                                    <p class="ks-demo__line is-match">WEB-DC-02 · windows/x64 · HTTPS</p>
+                                    <p class="ks-demo__line">FILE-01 · windows/x64 · DNS</p>
+                                </div>
+                                <div class="ks-demo__pane ks-demo__pane--ai">
+                                    <p class="ks-demo__pane-title">AI<span>c2_list_sessions</span></p>
+                                    <p class="ks-demo__line is-match">WEB-DC-02 · windows/x64 · HTTPS</p>
+                                    <p class="ks-demo__line">FILE-01 · windows/x64 · DNS</p>
+                                </div>
+                            </div>
+                            <p class="ks-demo__code"><span class="ks-demo__code-tag">c2_tail_events</span>session.online · WEB-DC-02 · 14:22:07 · beacon 60s</p>
+                            <p class="ks-demo__note">左右两边是同一台主机：AI 不是事后读一份离线报告，而是和操作员对齐在同一条事件流上，看到的就是同一份会话状态。</p>
+                        </div>
+
+                        <div class="ks-demo__scene" data-ks-demo-scene="4" role="group" aria-label="第 5 幕：AI 派发并等待">
+                            <p class="ks-demo__caption"><span class="ks-demo__step">05</span>AI 派发并等待</p>
+                            <ol class="ks-demo__flow">
+                                <li>
+                                    <code>c2_run_task</code>
+                                    <span>session=WEB-DC-02 · kind=ps · reason="确认异常进程来源，决定是否需要进一步取证"</span>
+                                </li>
+                                <li>
+                                    <code>c2_task_wait</code>
+                                    <span>task=t-91 · timeout=25s → succeeded · 3.2s</span>
+                                </li>
+                            </ol>
+                            <pre class="ks-demo__out">  PID  PPID  NAME
+ 5124  1044  explorer.exe
+ 7788  5124  powershell.exe -enc SQBFAFgA…</pre>
+                            <p class="ks-demo__note"><code>kind</code> 落在 12 种只读侦察白名单内才直接放行；<code>shell</code> / <code>inject</code> / <code>cred_dump</code> 这类会改变目标状态的动作会被拒绝，改由人在「C2 运维台」确认。派发后不重复下发同一条任务（目标会执行两次）。</p>
+                        </div>
+
+                        <div class="ks-demo__scene" data-ks-demo-scene="5" role="group" aria-label="第 6 幕：证据与审计">
+                            <p class="ks-demo__caption"><span class="ks-demo__step">06</span>证据与审计</p>
+                            <div class="ks-demo__split">
+                                <div class="ks-demo__pane">
+                                    <p class="ks-demo__pane-title">证据落盘<span>结构化</span></p>
+                                    <ul class="ks-demo__meta ks-demo__meta--stack">
+                                        <li>资产 3 条</li>
+                                        <li>证据条目 2 条</li>
+                                        <li>结论引用原始输出</li>
+                                    </ul>
+                                </div>
+                                <div class="ks-demo__pane">
+                                    <p class="ks-demo__pane-title">审计条目<span>可回放</span></p>
+                                    <ul class="ks-demo__meta ks-demo__meta--stack">
+                                        <li>AUD-0007</li>
+                                        <li>14:22:31</li>
+                                        <li>operator: ai-agent</li>
+                                        <li>依据：kind 白名单 + reason</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <p class="ks-demo__note">任务输出按结构化字段落盘，审计条目带编号、时间、操作者与判定依据，整段流转可以回放复盘。</p>
+                        </div>
+                    </div>
+
+                    <div class="ks-demo__scrub">
+                        <div class="ks-demo__track" role="slider" tabindex="0" data-ks-demo-track
+                             aria-label="演示进度" aria-valuemin="1" aria-valuemax="6" aria-valuenow="1">
+                            <span class="ks-demo__track-fill" data-ks-demo-fill></span>
+                        </div>
+                        <p class="ks-demo__hint" id="ksDemoHint">空格播放 / 暂停，左右方向键切幕</p>
+                    </div>
+                </div>
+
+                <ol class="ks-demo__chapters" data-ks-demo-chapters aria-label="演示步骤">
+                    <li>
+                        <button class="ks-demo__chapter is-active" type="button" data-ks-demo-chapter="0" aria-current="true">
+                            <span class="ks-demo__chapter-no">01</span>
+                            <span class="ks-demo__chapter-body">
+                                <span class="ks-demo__chapter-name">选平台与载荷</span>
+                                <span class="ks-demo__chapter-desc">目标平台、载荷形态、关联监听器</span>
+                            </span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="ks-demo__chapter" type="button" data-ks-demo-chapter="1">
+                            <span class="ks-demo__chapter-no">02</span>
+                            <span class="ks-demo__chapter-body">
+                                <span class="ks-demo__chapter-name">生成并投递</span>
+                                <span class="ks-demo__chapter-desc">传输方式 / 主机 / 端口 / 管道名随载荷生成</span>
+                            </span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="ks-demo__chapter" type="button" data-ks-demo-chapter="2">
+                            <span class="ks-demo__chapter-no">03</span>
+                            <span class="ks-demo__chapter-body">
+                                <span class="ks-demo__chapter-name">会话上线</span>
+                                <span class="ks-demo__chapter-desc">平台、进程、监听器类型、beacon 间隔</span>
+                            </span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="ks-demo__chapter" type="button" data-ks-demo-chapter="3">
+                            <span class="ks-demo__chapter-no">04</span>
+                            <span class="ks-demo__chapter-body">
+                                <span class="ks-demo__chapter-name">AI 接入协同</span>
+                                <span class="ks-demo__chapter-desc">与运维台读同一条事件流，看到同一份状态</span>
+                            </span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="ks-demo__chapter" type="button" data-ks-demo-chapter="4">
+                            <span class="ks-demo__chapter-no">05</span>
+                            <span class="ks-demo__chapter-body">
+                                <span class="ks-demo__chapter-name">AI 派发并等待</span>
+                                <span class="ks-demo__chapter-desc">默认仅侦察，reason 必填，有界等待取结果</span>
+                            </span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="ks-demo__chapter" type="button" data-ks-demo-chapter="5">
+                            <span class="ks-demo__chapter-no">06</span>
+                            <span class="ks-demo__chapter-body">
+                                <span class="ks-demo__chapter-name">证据与审计</span>
+                                <span class="ks-demo__chapter-desc">结构化落盘 + 审计条目可回放</span>
+                            </span>
+                        </button>
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==== 06 会话实录 ==== -->
+    <section class="ks-section" id="ks-terminal">
+        <header class="ks-section__head" data-ks-reveal>
+            <p class="ks-section__no">06</p>
+            <h2 class="ks-section__title">一次授权测试的会话实录</h2>
+            <p class="ks-section__desc">
+                下面是平台上一次受控测试的典型流转：选定角色 → 声明目标 → 工具调用 → 证据落盘 → 攻击链 → 报告。
+                值得留意的是每一步之间的闸门与留痕，而不是工具本身跑得多快。
+            </p>
+        </header>
+
+        <div class="ks-term" data-ks-term data-ks-reveal>
+            <div class="ks-term__chrome">
+                <span class="ks-term__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                <span class="ks-term__title">authorized-engagement — kestrelstrike session</span>
+                <button class="ks-mini-btn" type="button" data-ks-term-replay>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M20 12a8 8 0 1 1-2.4-5.7"></path>
+                        <path d="M20 3.8V9h-5.2"></path>
+                    </svg>
+                    重放会话
+                </button>
+            </div>
+            <div class="ks-term__body" data-ks-term-body>
+                <p class="ks-term__line ks-term__line--cmd"><span class="ks-term__prompt">$</span> <span class="ks-term__text">kestrelstrike session open --role 渗透测试 --scope scope.yaml</span></p>
+                <p class="ks-term__line ks-term__line--dim"><span class="ks-term__text">[scope] 已加载授权范围：2 个域名 / 1 个网段；超出范围的调用会被策略闸门拦截</span></p>
+                <p class="ks-term__line ks-term__line--cmd"><span class="ks-term__prompt">&gt;</span> <span class="ks-term__text">目标：对 demo.example.com 做一次授权的外部暴露面梳理，保留全部证据</span></p>
+                <p class="ks-term__line"><span class="ks-term__tag">plan</span><span class="ks-term__text">Plan-Execute 模式拆解为 4 个阶段：子域名 → 存活与指纹 → 目录枚举 → 汇总建模</span></p>
+                <p class="ks-term__line"><span class="ks-term__tag">tool</span><span class="ks-term__text">mcp__subdomain_enum args={"domain":"demo.example.com"}</span></p>
+                <p class="ks-term__line ks-term__line--dim"><span class="ks-term__text">[guard] 风险等级：低 → Tool Guard 策略未命中，自动放行</span></p>
+                <p class="ks-term__line"><span class="ks-term__tag">tool</span><span class="ks-term__text">mcp__httpx_probe args={"hosts":"demo.example.com,api.demo.example.com","ports":"80,443"}</span></p>
+                <p class="ks-term__line"><span class="ks-term__tag">tool</span><span class="ks-term__text">mcp__dir_enum args={"url":"https://demo.example.com","wordlist":"common"}</span></p>
+                <p class="ks-term__line ks-term__line--warn"><span class="ks-term__text">[guard] 风险等级：高 → 转入 HITL，等待人工确认 … 已批准（operator: sec-lead）</span></p>
+                <p class="ks-term__line ks-term__line--ok"><span class="ks-term__text">[evidence] 3 次工具输出已结构化落地：资产 7 条、候选发现 2 条（入库前需补齐证据类型）</span></p>
+                <p class="ks-term__line ks-term__line--ok"><span class="ks-term__text">[chain] 攻击链建模：暴露面 → 目录可达 → 版本区间，2 条发现已串联</span></p>
+                <p class="ks-term__line"><span class="ks-term__tag">report</span><span class="ks-term__text">报告已生成：每条结论均引用原始工具输出，未采纳无证据的推测</span></p>
+                <p class="ks-term__line ks-term__line--dim"><span class="ks-term__text">[audit] 本次会话 3 次工具调用、1 次人工确认，全部写入审计日志，可回放</span></p>
+                <p class="ks-term__line ks-term__line--cmd"><span class="ks-term__prompt">&gt;</span> <span class="ks-term__caret" aria-hidden="true"></span></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==== 07 平台概览 ==== -->
+    <section class="ks-section ks-section--tight" id="ks-figures">
+        <header class="ks-section__head" data-ks-reveal>
+            <p class="ks-section__no">07</p>
+            <h2 class="ks-section__title">平台概览</h2>
+            <p class="ks-section__desc">只列真实装得出来的数字，装不出来的能力就用描述说清楚。</p>
+        </header>
+
+        <ul class="ks-stats" data-ks-reveal>
+            <li class="ks-stat">
+                <span class="ks-stat__value" data-ks-count="4" data-ks-pad="2">04</span>
+                <span class="ks-stat__label">作战模式</span>
+                <span class="ks-stat__note">单兵突击 / 深度作战 / 计划执行 / 专家协同</span>
+            </li>
+            <li class="ks-stat">
+                <span class="ks-stat__value" data-ks-count="30" data-ks-pad="2">30</span>
+                <span class="ks-stat__label">Skills 技能包</span>
+                <span class="ks-stat__note">开箱 playbook；嵌套子技能 100+</span>
+            </li>
+            <li class="ks-stat">
+                <span class="ks-stat__value" data-ks-count="82" data-ks-pad="2">82</span>
+                <span class="ks-stat__label">MCP 内置工具</span>
+                <span class="ks-stat__note">资产·漏洞·C2·WebShell·黑板等，可挂 External MCP</span>
+            </li>
+            <li class="ks-stat">
+                <span class="ks-stat__value" data-ks-count="85" data-ks-pad="2">85</span>
+                <span class="ks-stat__label">索引知识条目</span>
+                <span class="ks-stat__note">29 个风险/场景分类，可向量检索与自动注入</span>
+            </li>
+            <li class="ks-stat">
+                <span class="ks-stat__value" data-ks-count="13" data-ks-pad="2">13</span>
+                <span class="ks-stat__label">内置角色</span>
+                <span class="ks-stat__note">12 个专业角色 + 1 个默认角色</span>
+            </li>
+            <li class="ks-stat ks-stat--qual">
+                <span class="ks-stat__value ks-stat__value--word">DSH</span>
+                <span class="ks-stat__label">多线作战运行时</span>
+                <span class="ks-stat__note">渗透测试模式 · MCP/Skills · 审核审计</span>
+            </li>
+        </ul>
+    </section>
+    <!-- ==== 申请试用版激活 / 部署 ==== -->
+    <section class="ks-section" id="ks-apply">
+        <header class="ks-section__head" data-ks-reveal>
+            <p class="ks-section__no">08</p>
+            <h2 class="ks-section__title">申请试用版激活</h2>
+            <p class="ks-section__desc">
+                产品授权分三档：<strong>试用版</strong>（能力同正式版）、<strong>正式版</strong>、<strong>企业版</strong>（含 C2 / MCP / Skills / 知识库）。
+                本表单用于申请<strong>试用版证书与部署包</strong>；审核通过后私下发放激活码或证书。预览编译包可先公开下载，不含源码。
+            </p>
+        </header>
+
+        <div class="ks-apply" data-ks-reveal>
+            <form class="ks-apply__form" id="ksApplyForm" novalidate>
+                <fieldset class="ks-apply__fieldset">
+                    <legend class="ks-apply__legend">申请角色</legend>
+                    <div class="ks-apply__roles" role="radiogroup" aria-label="申请角色">
+                        <label class="ks-apply__role">
+                            <input type="radio" name="role" value="enterprise" required>
+                            <span>企业安全团队</span>
+                        </label>
+                        <label class="ks-apply__role">
+                            <input type="radio" name="role" value="redteam">
+                            <span>个人红队师傅</span>
+                        </label>
+                        <label class="ks-apply__role">
+                            <input type="radio" name="role" value="whitehat">
+                            <span>白帽子</span>
+                        </label>
+                        <label class="ks-apply__role">
+                            <input type="radio" name="role" value="reverser">
+                            <span>逆向研究人员</span>
+                        </label>
+                        <label class="ks-apply__role">
+                            <input type="radio" name="role" value="other">
+                            <span>其他</span>
+                        </label>
+                    </div>
+                </fieldset>
+
+                <fieldset class="ks-apply__fieldset">
+                    <legend class="ks-apply__legend">期望授权版本</legend>
+                    <div class="ks-apply__roles" role="radiogroup" aria-label="期望授权版本">
+                        <label class="ks-apply__role">
+                            <input type="radio" name="edition" value="trial" checked required>
+                            <span>试用版（默认）</span>
+                        </label>
+                        <label class="ks-apply__role">
+                            <input type="radio" name="edition" value="pro">
+                            <span>正式版咨询</span>
+                        </label>
+                        <label class="ks-apply__role">
+                            <input type="radio" name="edition" value="enterprise">
+                            <span>企业版咨询</span>
+                        </label>
+                    </div>
+                    <p class="ks-apply__note" style="margin-top:.65rem">试用版与正式版能力相同（不含企业专属模块）。企业版需商务对接后签发。</p>
+                </fieldset>
+
+                <div class="ks-apply__grid">
+                    <label class="ks-apply__field">
+                        <span>姓名 / 代号</span>
+                        <input type="text" name="name" required maxlength="80" autocomplete="nickname" placeholder="怎么称呼你">
+                    </label>
+                    <label class="ks-apply__field">
+                        <span>单位 / 组织 <em class="ks-apply__hint">（企业申请必填）</em></span>
+                        <input type="text" name="org" maxlength="120" autocomplete="organization" placeholder="公司全称或团队名">
+                    </label>
+                    <label class="ks-apply__field">
+                        <span>联系方式</span>
+                        <input type="text" name="contact" required maxlength="120" placeholder="邮箱 / 微信 / Telegram">
+                    </label>
+                    <label class="ks-apply__field">
+                        <span>实例指纹 / 激活请求 <em class="ks-apply__hint">（可选，已部署时填写）</em></span>
+                        <input type="text" name="fingerprint" maxlength="200" placeholder="来自 /activate 页的指纹或请求摘要">
+                    </label>
+                    <label class="ks-apply__field ks-apply__field--wide">
+                        <span>用途说明</span>
+                        <textarea name="purpose" required rows="4" maxlength="2000" placeholder="授权范围、目标场景、预计部署环境（Kali / 内网服务器等）"></textarea>
+                    </label>
+                </div>
+
+                <label class="ks-apply__check">
+                    <input type="checkbox" name="authorize" value="yes" required>
+                    <span>我确认仅在已获得目标系统权利人明确书面授权的场景使用本平台，并同意遵守站点免责声明与安全声明。</span>
+                </label>
+
+                <div class="ks-apply__actions">
+                    <button class="ks-btn ks-btn--primary" type="submit">提交试用激活申请</button>
+                    <a class="ks-btn ks-btn--ghost" href="mailto:kestrel-c2@outlook.com?subject=KestrelStrikeAI%20%E8%AF%95%E7%94%A8%E7%89%88%E6%BF%80%E6%B4%BB%E7%94%B3%E8%AF%B7">改用邮件申请</a>
+                    <a class="ks-btn ks-btn--ghost" href="https://github.com/Kestrel-Y/kestrelstrikeai/releases" target="_blank" rel="noopener">仅下载预览包</a>
+                </div>
+                <p class="ks-apply__note">提交将打开对应角色的 GitHub Issue 并预填内容（需登录 GitHub）。本地预览阶段也可先用邮件。获准后你会收到试用版激活码或证书，再到产品 <code>/activate</code> 页完成激活。</p>
+            </form>
+        </div>
+    </section>
+
+</main>
+
+<!-- ==== 页脚 ==== -->
+<footer class="ks-footer">
+    <div class="ks-footer__inner">
+        <div class="ks-footer__brand">
+            <span class="ks-brand__mark" aria-hidden="true">
+                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 3.2 5.4 8.2v8.4c0 6 4.3 10.3 10.6 12.2 6.3-1.9 10.6-6.2 10.6-12.2V8.2L16 3.2Z"></path>
+                    <path d="M11.2 12.4 16 19.4l4.8-7"></path>
+                    <path d="M9.8 22.2h12.4"></path>
+                </svg>
+            </span>
+            <div>
+                <p class="ks-footer__name">KestrelStrikeAI<span class="ks-chip ks-chip--mono">preview</span></p>
+                <p class="ks-footer__tagline">受控执行 · 证据沉淀 · 攻击链闭环</p>
+            </div>
+        </div>
+
+        <div class="ks-footer__cols">
+            <div class="ks-footer__col">
+                <p class="ks-footer__col-title">入口</p>
+                <ul>
+                    <li><a href="#ks-apply">申请试用</a></li>
+                    <li><a href="https://github.com/Kestrel-Y/kestrelstrikeai" target="_blank" rel="noopener">GitHub</a></li>
+                    <li><a href="https://github.com/Kestrel-Y/kestrelstrikeai/releases" target="_blank" rel="noopener">预览包下载</a></li>
+                    <li><a href="docs/quickstart.html">快速开始</a></li>
+                    <li><a href="docs/security.html">安全声明</a></li>
+                </ul>
+            </div>
+            <div class="ks-footer__col">
+                <p class="ks-footer__col-title">技术栈</p>
+                <ul>
+                    <li>Go 后端服务</li>
+                    <li>Eino 智能体框架</li>
+                    <li>MCP 工具协议</li>
+                    <li>原生 HTML / CSS / JS 前端</li>
+                </ul>
+            </div>
+            <div class="ks-footer__col">
+                <p class="ks-footer__col-title">作者</p>
+                <ul>
+                    <li>Kestrel-Y</li>
+                    <li><a href="mailto:kestrel-c2@outlook.com">kestrel-c2@outlook.com</a></li>
+                </ul>
+            </div>
+            <div class="ks-footer__col">
+                <p class="ks-footer__col-title">开源边界</p>
+                <ul>
+                    <li>预览编译包公开</li>
+                    <li>核心源码不开源</li>
+                    <li><a href="https://github.com/Kestrel-Y/kestrelstrikeai" target="_blank" rel="noopener">仓库</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <p class="ks-footer__warning">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 3 5 6v6c0 4.1 2.9 7.1 7 8 4.1-.9 7-3.9 7-8V6l-7-3Z"></path>
+                <path d="M12 9v4M12 15.6v.4"></path>
+            </svg>
+            本平台面向已获得明确书面授权的安全测试、红队演练与防御性研究。请勿对未授权目标使用平台内的任何能力。
+        </p>
+        <!-- 免责声明：与登录页摘要、控制台首次弹窗 / 系统设置「免责协议」同一核心口径
+             （授权用途 / 合规义务 / 责任归属 / 现状复核 / 同意效力），首页额外保留
+             第三方内容、数据留存与条款变更说明。用 <details> 收起，默认不占版面。 -->
+        <details class="ks-footer__legal">
+            <summary>免责声明与使用许可</summary>
+            <div class="ks-footer__legal-body">
+                <!-- 核心五条与登录页摘要、控制台首次弹窗 / 系统设置「免责协议」同一口径；
+                     其后补充开源组件、数据留存与变更说明，仅出现在公开首页。 -->
+                <p><strong>1. 授权用途。</strong>本软件（含控制台、Agent、MCP、技能、工具配方、C2 / WebShell 等能力）<strong>仅限用于已获得目标系统权利人明确书面授权</strong>的安全测试、红队演练、漏洞验证、防御性研究与企业内部安全建设。<strong>禁止</strong>对未授权系统实施扫描、侵入、控制、破坏、数据窃取或干扰，亦<strong>禁止未经授权的商业使用、再分发或二次开发后的商用</strong>。平台内置的授权范围判定、人工审批与审计能力是辅助手段，不能替代你自身的授权文件与合规判断。</p>
+                <p><strong>2. 合规义务。</strong>使用者应遵守中华人民共和国法律法规，包括但不限于《中华人民共和国网络安全法》《中华人民共和国数据安全法》《中华人民共和国个人信息保护法》《中华人民共和国刑法》相关规定（含第 285、286 条等），以及适用的地方法规与行业监管要求。使用者须自行确保：（a）已取得充分、合法、可追溯的授权；（b）测试范围、时段与手段不超出授权；（c）对测试数据、客户数据与个人信息采取与其敏感度相称的保护措施。</p>
+                <p><strong>3. 责任归属（重要）。</strong>依据《网络安全法》第二十七条等规定，任何个人或组织不得从事非法侵入他人网络、干扰网络正常功能、窃取网络数据等危害网络安全的活动，不得提供专门用于从事上述活动的程序、工具；明知他人从事危害网络安全的活动仍提供技术支持、广告推广、支付结算等帮助的，依法追究责任。使用者若将本软件用于上述违法用途，其行为及全部后果<strong>由使用者自行承担</strong>，与作者、贡献者、分发者及权利人无关；作者等不承担任何直接、间接或连带责任，亦无义务提供协助或抗辩。一经发现违反本声明，使用许可立即自动终止，并应立即停止使用与删除全部副本。</p>
+                <p><strong>4. 现状与复核。</strong>本软件按「现状」提供，不附带任何明示或默示担保（含适销性、特定用途适用性）。AI 生成结论、扫描结果与自动化动作可能存在错误、遗漏或误报，<strong>必须由具备相应资质的人员复核后</strong>，方可作为处置或决策依据。在适用法律允许的最大范围内，作者与贡献者不对因使用或无法使用本软件造成的任何损失承担责任（与仓库根目录 <code>LICENSE</code> Apache-2.0 第 7、8 条一致）。</p>
+                <p><strong>5. 同意效力。</strong>请审慎阅读、充分理解全部条款。继续浏览、登录或使用即视为接受本协议约束；登录控制台后将再次弹窗确认，亦可在「系统设置 → 免责协议」查阅与弹窗一致的全文。若不同意，请立即停止使用。</p>
+                <p><strong>6. 第三方内容与开源组件。</strong>本项目派生自上游开源项目（Apache License 2.0），上游版权与许可信息见仓库根目录 <code>NOTICE</code> 与 <code>LICENSE</code>，请一并保留。平台内置的技能、知识库语料、工具配方中<strong>可能包含第三方作品</strong>，其著作权归各自原作者所有；<strong>对外分发前请自行确认每一份来源的授权状态</strong>，未获授权的部分请勿随产品分发。</p>
+                <p><strong>7. 数据与合规。</strong>平台会在本地保存会话记录、工具调用、证据与审计日志（含可能的目标信息与凭据引用）。使用者的数据留存、跨境传输与销毁策略由使用者自行负责，并应符合适用的数据保护要求。</p>
+                <p><strong>8. 条款变更。</strong>本声明可能随版本更新而调整；控制台弹窗以协议版本号为准，升版后需重新确认。继续使用即视为接受更新后的条款。</p>
+                <p class="ks-footer__legal-meta">联系：<a href="mailto:kestrel-c2@outlook.com">kestrel-c2@outlook.com</a>　·　安全漏洞请按仓库 <code>SECURITY.md</code> 的方式私下报告。</p>
+            </div>
+        </details>
+
+        <p class="ks-footer__copy">© <span data-ks-year>2026</span> KestrelStrikeAI · 作者 Kestrel-Y · kestrel-c2@outlook.com · 内置能力仅限合法授权场景使用</p>
+    </div>
+</footer>
+
+<script src="static/js/community-apply.js" defer></script>
+<script src="static/js/home.js?v=preview" defer></script>
+</body>
+</html>
